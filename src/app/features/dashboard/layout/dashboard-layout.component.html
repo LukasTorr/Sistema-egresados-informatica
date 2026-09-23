@@ -1,0 +1,90 @@
+<div class="shell" [class.shell--collapsed]="sidebarColapsado()">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__logo">SE</div>
+      <div class="sidebar__brand-text">
+        <p class="sidebar__title">Sistema de Egresados</p>
+        <p class="sidebar__subtitle">ICCI · UTA</p>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a routerLink="/dashboard" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item nav-item--top">
+        Panel principal
+      </a>
+
+      <div class="nav-group">
+        <button class="nav-group__toggle" (click)="toggleGrupo('egresados')" [class.is-open]="grupoAbierto() === 'egresados'">
+          <span>Egresados</span>
+          <span class="chevron">⌄</span>
+        </button>
+        @if (grupoAbierto() === 'egresados') {
+          <div class="nav-group__items">
+            <a routerLink="/dashboard/egresados" routerLinkActive="is-active" class="nav-item">Listado de egresados</a>
+            <a routerLink="/dashboard/egresados/nuevo" routerLinkActive="is-active" class="nav-item">Registrar egresado</a>
+          </div>
+        }
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group__toggle" (click)="toggleGrupo('actividades')" [class.is-open]="grupoAbierto() === 'actividades'">
+          <span>Actividades</span>
+          <span class="chevron">⌄</span>
+        </button>
+        @if (grupoAbierto() === 'actividades') {
+          <div class="nav-group__items">
+            <a routerLink="/dashboard/actividades" routerLinkActive="is-active" class="nav-item">Calendario</a>
+            <a routerLink="/dashboard/actividades/nueva" routerLinkActive="is-active" class="nav-item">Nueva actividad</a>
+          </div>
+        }
+      </div>
+
+      <a routerLink="/dashboard/encuestas" routerLinkActive="is-active" class="nav-item nav-item--top">Encuestas</a>
+      <a routerLink="/dashboard/ofertas" routerLinkActive="is-active" class="nav-item nav-item--top">Ofertas laborales</a>
+      <a routerLink="/dashboard/reportes" routerLinkActive="is-active" class="nav-item nav-item--top">Reportes</a>
+    </nav>
+  </aside>
+
+  <div class="shell__main">
+    <header class="topbar">
+      <button class="topbar__icon" (click)="toggleSidebar()" aria-label="Alternar menú">☰</button>
+      <a routerLink="/dashboard" class="topbar__icon" aria-label="Inicio">⌂</a>
+
+      <div class="topbar__spacer"></div>
+
+      <button class="topbar__icon" aria-label="Notificaciones">🔔</button>
+
+      <div class="user-menu">
+        <button class="user-menu__toggle" (click)="toggleMenuUsuario()">
+          <span class="avatar">{{ inicialesUsuario() }}</span>
+          <span class="user-menu__name">{{ nombreUsuario() }}</span>
+          <span class="chevron">⌄</span>
+        </button>
+
+        @if (menuUsuarioAbierto()) {
+          <div class="user-menu__dropdown">
+            <a routerLink="/dashboard/perfil">Mi perfil</a>
+            <a routerLink="/dashboard/configuracion">Configuración</a>
+            <a routerLink="/dashboard/ayuda">Ayuda</a>
+            <button type="button" (click)="pedirConfirmacionCierreSesion()">Cerrar sesión</button>          </div>
+        }
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+    @if (confirmandoCierreSesion()) {
+    <div class="modal-overlay" (click)="cancelarCierreSesion()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <h2 class="modal-card__title">¿Estás seguro que quieres cerrar sesión?</h2>
+        <p class="modal-card__text">Tendrás que volver a ingresar tu Rut y clave para acceder de nuevo.</p>
+        <div class="modal-card__actions">
+          <button type="button" class="btn btn--ghost" (click)="cancelarCierreSesion()">Cancelar</button>
+          <button type="button" class="btn btn--danger" (click)="confirmarCierreSesion()">Sí, cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

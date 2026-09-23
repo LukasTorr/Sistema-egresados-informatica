@@ -1,1 +1,44 @@
 /* You can add global styles to this file, and also import other style files */
+:root {
+  --uta-navy: #1b2a47;
+  --uta-navy-light: #253a61;
+  --uta-gold: #eaa617;
+  --uta-gold-dark: #d3960f;
+  --uta-red: #b5342a;
+  --uta-blue: #1f6fb2;
+
+  --ink: #1c2333;
+  --ink-soft: #4a5468;
+  --line: #d9dde3;
+  --bg-page: #eef1f4;
+  --surface: #ffffff;
+  --error: #c0392b;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --shadow-card: 0 24px 60px -24px rgba(27, 42, 71, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--bg-page);
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}

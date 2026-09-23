@@ -1,0 +1,82 @@
+<div class="auth-screen">
+  <section class="auth-card">
+    <div class="auth-card__form">
+      <h1 class="auth-card__title">Sistema de Egresados</h1>
+      <p class="auth-card__subtitle">Ingeniería Civil en Computación e Informática</p>
+
+      <form [formGroup]="form" (ngSubmit)="iniciarSesion()" novalidate>
+        <div class="field" [class.field--error]="rutInvalido">
+          <label for="rut">Rut*</label>
+          <input
+            id="rut"
+            type="text"
+            formControlName="rut"
+            placeholder="12.345.678-9"
+            autocomplete="username"
+            (input)="onRutInput($event)"
+          />
+          @if (rutInvalido) {
+            <span class="field__hint">Ingrese un Rut válido</span>
+          }
+        </div>
+
+        <div class="field" [class.field--error]="claveInvalida">
+          <label for="clave">Clave*</label>
+          <div class="field__control">
+            <input
+              id="clave"
+              [type]="claveVisible() ? 'text' : 'password'"
+              formControlName="clave"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="field__toggle"
+              (click)="alternarVisibilidadClave()"
+            >
+              {{ claveVisible() ? 'Ocultar' : 'Ver' }}
+            </button>
+          </div>
+          @if (claveInvalida) {
+            <span class="field__hint">Ingrese la Clave</span>
+          }
+          <a class="field__link" routerLink="/recuperar-clave">¿Olvidó su clave?</a>
+        </div>
+
+        @if (errorServidor()) {
+          <p class="auth-card__error" role="alert">{{ errorServidor() }}</p>
+        }
+
+        <button type="submit" class="btn btn--gold" [disabled]="enviando()">
+          {{ enviando() ? 'Verificando…' : 'Iniciar sesión' }}
+        </button>
+      </form>
+
+      <div class="auth-card__divider"><span>o iniciar sesión con</span></div>
+
+      <button type="button" class="btn btn--red">Gmail Institucional</button>
+      <a routerLink="/registro" class="btn btn--blue-outline">Crear cuenta de egresado</a>
+    </div>
+
+    <aside class="auth-card__info">
+      <div>
+        <h2>Relación permanente con nuestros egresados</h2>
+        <div class="info-block">
+          <h3>¿Qué puedes hacer aquí?</h3>
+          <ul>
+            <li>Mantener actualizados tus datos de contacto y situación laboral</li>
+            <li>Inscribirte en actividades de educación continua</li>
+            <li>Responder encuestas para mejorar el perfil de egreso</li>
+            <li>Revisar ofertas laborales publicadas por la carrera</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>Solicita Ayuda</h3>
+        <p><strong>Horario:</strong> Lunes a Viernes 08:30 – 17:30</p>
+        <p>secretaria.icci&#64;uta.cl</p>
+      </div>
+    </aside>
+  </section>
+</div>
