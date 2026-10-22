@@ -1,10 +1,22 @@
 <div class="auth-screen">
-  <section class="auth-card auth-card--wide">
-    <div class="auth-card__form">
-      <h1 class="auth-card__title">Crear cuenta de egresado</h1>
-      <p class="auth-card__subtitle">Ingeniería Civil en Computación e Informática</p>
+  <aside class="auth-side">
+    <div class="auth-side__brand">
+      <p class="auth-side__uni">Universidad de Tarapacá</p>
+      <p class="auth-side__dept">Depto. de Ingeniería en Computación e Informática</p>
+    </div>
+    <h1 class="auth-side__title">Sistema de Seguimiento<br />de Egresados</h1>
+  </aside>
+
+  <section class="auth-panel">
+    <div class="auth-panel__card auth-panel__card--wide">
+      <h2 class="auth-panel__title">Crear cuenta de egresado</h2>
+      <p class="auth-panel__subtitle">Completa tus datos para activar tu acceso al sistema.</p>
 
       <form [formGroup]="form" (ngSubmit)="crearCuenta()" novalidate>
+        @if (errorServidor()) {
+          <div class="alert alert--error">{{ errorServidor() }}</div>
+        }
+
         <div class="field-row">
           <div class="field" [class.field--error]="invalido('nombres')">
             <label for="nombres">Nombres*</label>
@@ -38,13 +50,13 @@
 
         <div class="field-row">
           <div class="field" [class.field--error]="invalido('clave')">
-            <label for="clave">Clave*</label>
+            <label for="clave">Contraseña*</label>
             <input id="clave" type="password" formControlName="clave" autocomplete="new-password" />
             @if (invalido('clave')) { <span class="field__hint">Mínimo 6 caracteres</span> }
           </div>
 
           <div class="field" [class.field--error]="invalido('claveConfirmacion')">
-            <label for="claveConfirmacion">Confirmar clave*</label>
+            <label for="claveConfirmacion">Confirmar contraseña*</label>
             <input id="claveConfirmacion" type="password" formControlName="claveConfirmacion" autocomplete="new-password" />
           </div>
         </div>
@@ -53,37 +65,14 @@
           <span class="field__hint">Las claves no coinciden</span>
         }
 
-        @if (errorServidor()) {
-          <p class="auth-card__error" role="alert">{{ errorServidor() }}</p>
-        }
-
-        <button type="submit" class="btn btn--gold" [disabled]="enviando()">
+        <button type="submit" class="btn btn--primary" [disabled]="enviando()">
           {{ enviando() ? 'Creando cuenta…' : 'Crear cuenta' }}
         </button>
       </form>
 
-      <p class="auth-card__footnote">
+      <p class="auth-panel__footnote">
         ¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión aquí</a>
       </p>
     </div>
-
-    <aside class="auth-card__info">
-      <div>
-        <h2>Mantén tu perfil de egresado al día</h2>
-        <div class="info-block">
-          <h3>¿Por qué registrarme?</h3>
-          <ul>
-            <li>La carrera podrá contactarte para actividades de vinculación</li>
-            <li>Accederás a educación continua y capacitaciones</li>
-            <li>Tu feedback ayuda a mejorar el perfil de egreso</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="info-block">
-        <h3>Datos que registraremos</h3>
-        <p>Nombre, Rut, correo, teléfono, empresa donde trabajas y rango de renta, para fines de seguimiento y acreditación.</p>
-      </div>
-    </aside>
   </section>
 </div>

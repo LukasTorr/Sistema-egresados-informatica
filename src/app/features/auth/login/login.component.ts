@@ -1,76 +1,46 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
-import {
-  rutValidator,
-  formatearRut,
-} from '../../../core/validators/rut.validator';
+
+type RolLogin = 'secretaria' | 'egresado' | 'jefe_carrera';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly claveVisible = signal(false);
-  readonly enviando = signal(false);
-  readonly errorServidor = signal<string | null>(null);
+  readonly roles: { valor: RolLogin; etiqueta: string }[] = [
+    { valor: 'secretaria', etiqueta: 'Secretaría' },
+    { valor: 'egresado', etiqueta: 'Egresado' },
+    { valor: 'jefe_carrera', etiqueta: 'Jefatura' },
+  ];
 
-  readonly form = this.fb.group({
-    rut: ['', [Validators.required, rutValidator()]],
-    clave: ['', [Validators.required, Validators.minLength(4)]],
-  });
+  readonly rolSeleccionado = signal<RolLogin | null>(null);
+  readonly error = signal<string | null>(null);
 
-  onRutInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const formateado = formatearRut(input.value);
-    this.form.controls.rut.setValue(formateado, { emitEvent: false });
+  seleccionarRol(rol: RolLogin): void {
+    this.rolSeleccionado.set(rol);
+    this.error.set(null);
   }
 
-  alternarVisibilidadClave(): void {
-    this.claveVisible.update((v) => !v);
-  }
+  ingresar(): void {
+    const rol = this.rolSeleccionado();
 
-  get rutInvalido(): boolean {
-    const c = this.form.controls.rut;
-    return c.touched && c.invalid;
-  }
-
-  get claveInvalida(): boolean {
-    const c = this.form.controls.clave;
-    return c.touched && c.invalid;
-  }
-
-  iniciarSesion(): void {
-    this.errorServidor.set(null);
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+    if (!rol) {
+      this.error.set('Selecciona un rol para ingresar.');
       return;
     }
 
-    this.enviando.set(true);
-    const { rut, clave } = this.form.getRawValue();
-
-    this.auth.login({ rut: rut!, clave: clave! }).subscribe({
-      next: (usuario) => {
-        this.enviando.set(false);
-        this.auth.usuarioActual.set(usuario);
-        this.router.navigateByUrl('/dashboard');
-      },
-      error: (err: Error) => {
-        this.enviando.set(false);
-        this.errorServidor.set(err.message || 'No fue posible iniciar sesión.');
-      },
-    });
+    // Prototipo: el rol elegido define la cuenta. Más adelante aquí se validan las credenciales reales.
+    const usuario = this.auth.loginDemo(rol);
+    this.auth.usuarioActual.set(usuario);
+    this.router.navigateByUrl(this.auth.rutaInicio(usuario.rol));
   }
 }

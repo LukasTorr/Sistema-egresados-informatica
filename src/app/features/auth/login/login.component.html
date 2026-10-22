@@ -1,82 +1,62 @@
 <div class="auth-screen">
-  <section class="auth-card">
-    <div class="auth-card__form">
-      <h1 class="auth-card__title">Sistema de Egresados</h1>
-      <p class="auth-card__subtitle">Ingeniería Civil en Computación e Informática</p>
+  <aside class="auth-side">
+    <div class="auth-side__brand">
+      <p class="auth-side__uni">Universidad de Tarapacá</p>
+      <p class="auth-side__dept">Depto. de Ingeniería en Computación e Informática</p>
+    </div>
+    <h1 class="auth-side__title">Sistema de Seguimiento<br />de Egresados</h1>
+  </aside>
 
-      <form [formGroup]="form" (ngSubmit)="iniciarSesion()" novalidate>
-        <div class="field" [class.field--error]="rutInvalido">
-          <label for="rut">Rut*</label>
-          <input
-            id="rut"
-            type="text"
-            formControlName="rut"
-            placeholder="12.345.678-9"
-            autocomplete="username"
-            (input)="onRutInput($event)"
-          />
-          @if (rutInvalido) {
-            <span class="field__hint">Ingrese un Rut válido</span>
-          }
-        </div>
+  <section class="auth-panel">
+    <div class="auth-panel__card">
+      <h2 class="auth-panel__title">Iniciar sesión</h2>
+      <p class="auth-panel__subtitle">Ingresa con tus credenciales institucionales. Verás solo las funciones de tu rol.</p>
 
-        <div class="field" [class.field--error]="claveInvalida">
-          <label for="clave">Clave*</label>
-          <div class="field__control">
-            <input
-              id="clave"
-              [type]="claveVisible() ? 'text' : 'password'"
-              formControlName="clave"
-              autocomplete="current-password"
-            />
-            <button
-              type="button"
-              class="field__toggle"
-              (click)="alternarVisibilidadClave()"
-            >
-              {{ claveVisible() ? 'Ocultar' : 'Ver' }}
-            </button>
-          </div>
-          @if (claveInvalida) {
-            <span class="field__hint">Ingrese la Clave</span>
-          }
-          <a class="field__link" routerLink="/recuperar-clave">¿Olvidó su clave?</a>
-        </div>
-
-        @if (errorServidor()) {
-          <p class="auth-card__error" role="alert">{{ errorServidor() }}</p>
+      <form (submit)="$event.preventDefault(); ingresar()" novalidate>
+        @if (error()) {
+          <div class="alert alert--error" role="alert">{{ error() }}</div>
         }
 
-        <button type="submit" class="btn btn--gold" [disabled]="enviando()">
-          {{ enviando() ? 'Verificando…' : 'Iniciar sesión' }}
-        </button>
-      </form>
-
-      <div class="auth-card__divider"><span>o iniciar sesión con</span></div>
-
-      <button type="button" class="btn btn--red">Gmail Institucional</button>
-      <a routerLink="/registro" class="btn btn--blue-outline">Crear cuenta de egresado</a>
-    </div>
-
-    <aside class="auth-card__info">
-      <div>
-        <h2>Relación permanente con nuestros egresados</h2>
-        <div class="info-block">
-          <h3>¿Qué puedes hacer aquí?</h3>
-          <ul>
-            <li>Mantener actualizados tus datos de contacto y situación laboral</li>
-            <li>Inscribirte en actividades de educación continua</li>
-            <li>Responder encuestas para mejorar el perfil de egreso</li>
-            <li>Revisar ofertas laborales publicadas por la carrera</li>
-          </ul>
+        <div class="field">
+          <label for="usuario">Correo o RUT</label>
+          <input id="usuario" name="usuario" type="text" placeholder="ej: 19.234.567-8 o nombre&#64;uta.cl" autocomplete="username" />
         </div>
-      </div>
 
-      <div class="info-block">
-        <h3>Solicita Ayuda</h3>
-        <p><strong>Horario:</strong> Lunes a Viernes 08:30 – 17:30</p>
-        <p>secretaria.icci&#64;uta.cl</p>
-      </div>
-    </aside>
+        <div class="field">
+          <label for="clave">Contraseña</label>
+          <input id="clave" name="clave" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" />
+        </div>
+
+        <div class="auth-panel__row">
+          <label class="checkbox">
+            <input type="checkbox" name="recordarme" />
+            <span>Recordarme</span>
+          </label>
+          <a class="field__link" routerLink="/recuperar-clave">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <div class="auth-panel__demo">
+          <p class="auth-panel__demo-label">Selecciona tu rol</p>
+          <div class="auth-panel__demo-buttons">
+            @for (r of roles; track r.valor) {
+              <button
+                type="button"
+                class="btn btn--outline"
+                [class.is-selected]="rolSeleccionado() === r.valor"
+                [attr.aria-pressed]="rolSeleccionado() === r.valor"
+                (click)="seleccionarRol(r.valor)"
+              >
+                {{ r.etiqueta }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="auth-panel__actions">
+          <button type="submit" class="btn btn--primary">Ingresar</button>
+          <a routerLink="/registro" class="btn btn--secondary">Registrar</a>
+        </div>
+      </form>
+    </div>
   </section>
 </div>
