@@ -42,3 +42,49 @@ h1, h2, h3, p {
 a {
   color: inherit;
 }
+/* Colores del panel interno; [data-tema='oscuro'] los cambia para el modo oscuro. */
+:root {
+  color-scheme: light;
+  --p-bg: #f3f5f8;
+  --p-surface: #ffffff;
+  --p-surface-2: #f1f3f7;
+  --p-ink: #14223b;
+  --p-ink-soft: #3b4a63;
+  --p-muted: #5b6577;
+  --p-placeholder: #a5acb9;
+  --p-border: #e3e6ec;
+  --p-border-strong: #d7dbe3;
+  --p-link: #1f4e8c;
+  --p-info-bg: #e8eef7;
+  --p-info-border: #cfe0f5;
+  --p-warn: #b9740a;
+  --p-warn-bg: #fdf0d3;
+  --p-danger: #c0392b;
+  --p-danger-bg: #fdecea;
+  --p-ok: #1f8a52;
+  --p-ok-bg: #e9f7ef;
+  --p-shadow: 0 18px 40px -18px rgba(20, 34, 59, 0.35);
+}
+
+[data-tema='oscuro'] {
+  color-scheme: dark;
+  --p-bg: #0f1626;
+  --p-surface: #182238;
+  --p-surface-2: #212d46;
+  --p-ink: #e6ebf4;
+  --p-ink-soft: #c3cbdb;
+  --p-muted: #9aa5ba;
+  --p-placeholder: #6c7a96;
+  --p-border: #2a3653;
+  --p-border-strong: #364463;
+  --p-link: #7fb0f0;
+  --p-info-bg: #1d3253;
+  --p-info-border: #2d4a75;
+  --p-warn: #f0b552;
+  --p-warn-bg: #3a2e14;
+  --p-danger: #f08277;
+  --p-danger-bg: #3d1f1e;
+  --p-ok: #5fcf95;
+  --p-ok-bg: #173527;
+  --p-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+}

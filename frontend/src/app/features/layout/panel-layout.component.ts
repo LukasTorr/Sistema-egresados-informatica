@@ -1,9 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
+import { NotificacionesService } from '../../core/services/notificaciones.service';
+import { TemaService } from '../../core/services/tema.service';
 
 interface ItemMenu {
   etiqueta: string;
@@ -15,7 +17,6 @@ interface ConfigRol {
   titulo: string;
   etiquetaMenu: string;
   cargoPorDefecto: string;
-  notificaciones: number;
   admin: boolean;
   items: ItemMenu[];
 }
@@ -25,7 +26,6 @@ const CONFIG: Record<string, ConfigRol> = {
     titulo: 'Secretaría',
     etiquetaMenu: 'SECRETARÍA',
     cargoPorDefecto: 'Secretaría DICI',
-    notificaciones: 3,
     admin: true,
     items: [
       { etiqueta: 'Inicio', ruta: '/secretaria', exacto: true },
@@ -42,7 +42,6 @@ const CONFIG: Record<string, ConfigRol> = {
     titulo: 'Jefatura',
     etiquetaMenu: 'JEFATURA DE CARRERA',
     cargoPorDefecto: 'Jefatura de Carrera',
-    notificaciones: 1,
     admin: true,
     items: [
       { etiqueta: 'Panel de métricas', ruta: '/jefatura', exacto: true },
@@ -54,7 +53,6 @@ const CONFIG: Record<string, ConfigRol> = {
     titulo: 'Egresado',
     etiquetaMenu: 'EGRESADO',
     cargoPorDefecto: 'Egresado/a ICCI',
-    notificaciones: 2,
     admin: false,
     items: [
       { etiqueta: 'Inicio', ruta: '/egresado', exacto: true },
@@ -76,6 +74,8 @@ const CONFIG: Record<string, ConfigRol> = {
 export class PanelLayoutComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  readonly notificaciones = inject(NotificacionesService);
+  readonly tema = inject(TemaService);
 
   readonly usuario = this.auth.usuarioActual;
 
@@ -86,6 +86,14 @@ export class PanelLayoutComponent {
 
   readonly seccionActual = signal('Inicio');
   readonly confirmandoCierreSesion = signal(false);
+  readonly menuAbierto = signal<'notificaciones' | 'usuario' | null>(null);
+
+  readonly rutaBase = computed(() => this.auth.rutaInicio(this.usuario()?.rol ?? 'egresado'));
+
+  // Secretaría y jefatura no tienen ficha de egresado, así que su perfil es la página de ajustes.
+  readonly rutaPerfil = computed(() =>
+    this.usuario()?.rol === 'egresado' ? '/egresado/perfil' : `${this.rutaBase()}/ajustes`,
+  );
 
   readonly nombreCompleto = computed(() => {
     const u = this.usuario();
@@ -101,23 +109,42 @@ export class PanelLayoutComponent {
   readonly cargo = computed(() => this.usuario()?.cargo ?? this.config().cargoPorDefecto);
 
   constructor() {
+    this.notificaciones.cargar();
     this.actualizarSeccion();
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.actualizarSeccion());
+      .subscribe(() => {
+        this.menuAbierto.set(null);
+        this.actualizarSeccion();
+      });
+  }
+
+  @HostListener('document:click')
+  @HostListener('document:keydown.escape')
+  cerrarMenus(): void {
+    this.menuAbierto.set(null);
+  }
+
+  alternarMenu(menu: 'notificaciones' | 'usuario', evento: Event): void {
+    evento.stopPropagation();
+    const abrir = this.menuAbierto() !== menu;
+    this.menuAbierto.set(abrir ? menu : null);
+    if (abrir && menu === 'notificaciones') this.notificaciones.cargar();
   }
 
   private actualizarSeccion(): void {
     const items = this.config().items;
     const url = this.router.url;
     const item = [...items].reverse().find((m) => url.startsWith(m.ruta));
-    this.seccionActual.set(item?.etiqueta ?? items[0].etiqueta);
+    const fuera = url.endsWith('/ajustes') ? 'Ajustes' : null;
+    this.seccionActual.set(fuera ?? item?.etiqueta ?? items[0].etiqueta);
   }
 
   pedirConfirmacionCierreSesion(): void {
+    this.menuAbierto.set(null);
     this.confirmandoCierreSesion.set(true);
   }
 

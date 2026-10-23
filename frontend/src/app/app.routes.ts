@@ -6,6 +6,13 @@ const layout = () =>
     (m) => m.PanelLayoutComponent,
   );
 
+const ajustes = (area: string) => ({
+  path: 'ajustes',
+  loadComponent: () =>
+    import('./features/ajustes/ajustes.component').then((m) => m.AjustesComponent),
+  title: `Ajustes | ${area} ICCI`,
+});
+
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
@@ -47,6 +54,7 @@ export const routes: Routes = [
           ),
         title: 'Registrar egresado | Secretaría ICCI',
       },
+      ajustes('Secretaría'),
       { path: '**', redirectTo: '' },
     ],
   },
@@ -65,6 +73,7 @@ export const routes: Routes = [
           ),
         title: 'Panel de métricas | Jefatura ICCI',
       },
+      ajustes('Jefatura'),
       { path: '**', redirectTo: '' },
     ],
   },
@@ -91,6 +100,7 @@ export const routes: Routes = [
           ),
         title: 'Mi perfil | Egresado ICCI',
       },
+      ajustes('Egresado'),
       { path: '**', redirectTo: '' },
     ],
   },

@@ -45,40 +45,40 @@ import { AuthService } from '../../../core/services/auth.service';
       .titulo {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 0;
       }
       .subtitulo {
         font-size: 0.9rem;
-        color: #5b6577;
+        color: var(--p-muted);
         margin: 4px 0 22px;
       }
       .banner {
-        background: #faf1d9;
+        background: var(--p-warn-bg);
         border-radius: 12px;
         padding: 18px 22px;
         margin-bottom: 18px;
       }
       .banner__titulo {
         font-weight: 700;
-        color: #b9740a;
+        color: var(--p-warn);
         margin: 0 0 4px;
       }
       .banner__texto {
         font-size: 0.88rem;
-        color: #5b6577;
+        color: var(--p-muted);
         margin: 0;
       }
       .card {
-        background: #fff;
-        border: 1px solid #e3e6ec;
+        background: var(--p-surface);
+        border: 1px solid var(--p-border);
         border-radius: 12px;
         padding: 22px;
       }
       .card__titulo {
         font-size: 1.05rem;
         font-weight: 700;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 0 0 14px;
       }
       .lista {
@@ -90,23 +90,23 @@ import { AuthService } from '../../../core/services/auth.service';
         gap: 12px;
       }
       .item {
-        background: #f1f5fb;
+        background: var(--p-surface-2);
         border-radius: 10px;
         padding: 14px 16px;
       }
       .item__titulo {
         font-weight: 700;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 0;
       }
       .item__meta {
         font-size: 0.75rem;
-        color: #5b6577;
+        color: var(--p-muted);
         margin: 2px 0 6px;
       }
       .item__texto {
         font-size: 0.86rem;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 0;
       }
     `,
