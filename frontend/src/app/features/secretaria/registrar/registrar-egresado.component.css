@@ -1,0 +1,282 @@
+.head {
+  margin-bottom: 20px;
+}
+
+.head__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #14223b;
+  margin: 0;
+}
+
+.head__subtitle {
+  font-size: 0.85rem;
+  color: #5b6577;
+  margin: 4px 0 0;
+}
+
+.alert {
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.alert--ok {
+  background: #e9f7ef;
+  border: 1px solid #1f8a52;
+  color: #1f8a52;
+}
+
+.alert--error {
+  background: #fdecea;
+  border: 1px solid #c0392b;
+  color: #c0392b;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+.main,
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side {
+  position: sticky;
+  top: 20px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e3e6ec;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #14223b;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  gap: 14px;
+}
+
+.row--2 { grid-template-columns: 1fr 1fr; }
+.row--3 { grid-template-columns: 1.3fr 1fr 1fr; }
+.row--4 { grid-template-columns: repeat(4, 1fr); }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #14223b;
+}
+
+.field input,
+.field select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #d7dbe3;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #14223b;
+  background: #fff;
+  min-width: 0;
+}
+
+.field input::placeholder {
+  color: #a5acb9;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid #1f4e8c;
+  outline-offset: 0;
+  border-color: #1f4e8c;
+}
+
+.field--error input,
+.field--error select {
+  border-color: #c0392b;
+}
+
+.field__hint {
+  font-size: 0.72rem;
+}
+
+.field__hint--ok { color: #1f8a52; }
+.field__hint--error { color: #c0392b; }
+
+.tabs {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 3px;
+  background: #f1f3f7;
+  border-radius: 8px;
+}
+
+.tabs__item {
+  height: 30px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5b6577;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tabs__item:hover {
+  color: #14223b;
+}
+
+.tabs__item.is-active {
+  background: #fff;
+  color: #14223b;
+  box-shadow: 0 1px 3px rgba(20, 34, 59, 0.15);
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #14223b;
+}
+
+.check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.check--ok {
+  background: #dff3e8;
+  color: #1f8a52;
+}
+
+.check--error {
+  background: #fbe3e1;
+  color: #c0392b;
+}
+
+.check--pending {
+  background: #fdf0d3;
+  color: #b9740a;
+}
+
+.info {
+  background: #e8f0fa;
+  border: 1px solid #cfe0f5;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.info__title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1f4e8c;
+  margin: 0 0 4px;
+}
+
+.info__text {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #3b4a63;
+  margin: 0;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+}
+
+.btn {
+  height: 38px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: #1f4e8c;
+  color: #fff;
+  border: none;
+}
+
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn--outline {
+  background: #fff;
+  color: #14223b;
+  border: 1.5px solid #d7dbe3;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+  }
+  .row--4 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .row--2,
+  .row--3,
+  .row--4 {
+    grid-template-columns: 1fr;
+  }
+}

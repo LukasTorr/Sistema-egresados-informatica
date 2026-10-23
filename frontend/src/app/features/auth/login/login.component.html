@@ -1,0 +1,44 @@
+<div class="auth-screen">
+  <aside class="auth-side">
+    <div class="auth-side__brand">
+      <p class="auth-side__uni">Universidad de Tarapacá</p>
+      <p class="auth-side__dept">Depto. de Ingeniería en Computación e Informática</p>
+    </div>
+    <h1 class="auth-side__title">Sistema de Seguimiento<br />de Egresados</h1>
+  </aside>
+
+  <section class="auth-panel">
+    <div class="auth-panel__card">
+      <h2 class="auth-panel__title">Iniciar sesión</h2>
+      <p class="auth-panel__subtitle">Ingresa con tus credenciales institucionales. Verás solo las funciones de tu rol.</p>
+
+      <form (submit)="$event.preventDefault(); ingresar(usuario.value, clave.value)" novalidate>
+        @if (error()) {
+          <div class="alert alert--error" role="alert">{{ error() }}</div>
+        }
+
+        <div class="field">
+          <label for="usuario">Correo</label>
+          <input #usuario id="usuario" name="usuario" type="email" placeholder="ej: nombre&#64;uta.cl" autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <label for="clave">Contraseña</label>
+          <input #clave id="clave" name="clave" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" />
+        </div>
+
+        <div class="auth-panel__row">
+          <label class="checkbox">
+            <input type="checkbox" name="recordarme" />
+            <span>Recordarme</span>
+          </label>
+          <a class="field__link" routerLink="/recuperar-clave">¿Olvidaste tu contraseña?</a>
+        </div>
+        <div class="auth-panel__actions">
+          <button type="submit" class="btn btn--primary" [disabled]="ingresando()">{{ ingresando() ? 'Ingresando...' : 'Ingresar' }}</button>
+          <a routerLink="/registro" class="btn btn--secondary">Registrar</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
