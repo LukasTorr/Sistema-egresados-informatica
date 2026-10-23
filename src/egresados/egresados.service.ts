@@ -50,7 +50,6 @@ export class EgresadosService {
   constructor(private readonly prisma: PrismaService) {}
 
   // HU-01: registrar
-
   async validarRegistro(dto: CrearEgresadoDto, tx: Tx = this.prisma): Promise<string[]> {
     const errores: string[] = [];
     if (!dto.correos?.length && !dto.telefonos?.length) {
@@ -126,7 +125,6 @@ export class EgresadosService {
   }
 
   // HU-02: consultar
-
   async listar(filtro: FiltroEgresadosDto) {
     const where: Prisma.egresadoWhereInput = {
       id_especialidad: filtro.id_especialidad,
@@ -190,7 +188,6 @@ export class EgresadosService {
   }
 
   // HU-02: actualizar
-
   async actualizar(
     id_egresado: number,
     dto: ActualizarEgresadoDto | ActualizarMiPerfilDto,
