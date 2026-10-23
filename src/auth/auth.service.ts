@@ -27,8 +27,6 @@ export class AuthService {
       },
     });
 
-    // Mismo mensaje si el correo no existe o la contraseña es incorrecta,
-    // para no revelar qué correos están registrados.
     const valida =
       cuenta && (await bcrypt.compare(dto.contrasena, cuenta.contrasena_hash));
     if (!cuenta || !valida) {

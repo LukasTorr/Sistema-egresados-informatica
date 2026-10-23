@@ -21,9 +21,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     ComunicacionesModule,
   ],
   providers: [
-    // Todas las rutas exigen token salvo las marcadas con @Public()
     { provide: APP_GUARD, useClass: JwtAuthGuard },
-    // Y luego se revisa el rol si la ruta tiene @Roles(...)
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })

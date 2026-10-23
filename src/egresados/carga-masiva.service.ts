@@ -9,7 +9,6 @@ import { CrearEgresadoDto } from './dto/crear-egresado.dto';
 import { ErrorFilaDto, ResultadoCargaDto } from './dto/resultado-carga.dto';
 import { EgresadosService } from './egresados.service';
 
-/** Columnas del archivo CSV (formato definido para la carga inicial). */
 export const COLUMNAS_CSV = [
   'rut',
   'nombres',
@@ -55,7 +54,6 @@ export class CargaMasivaService {
       'Desarrollador Backend',
       'ENTRE_1M_1_5M',
     ];
-    // BOM para que Excel abra bien los acentos
     return '﻿' + [COLUMNAS_CSV.join(';'), ejemplo.join(';')].join('\r\n') + '\r\n';
   }
 
@@ -81,17 +79,15 @@ export class CargaMasivaService {
     let insertados = 0;
 
     for (const [i, fila] of filas.entries()) {
-      const numeroFila = i + 2; // +1 por el encabezado, +1 porque Excel parte en 1
+      const numeroFila = i + 2;
       const rut = fila.rut ? normalizarRut(fila.rut) : null;
       const erroresFila: string[] = [];
 
-      // 1) Formato: se reutilizan las mismas validaciones del registro manual (HU-01)
       const { dto, errores: erroresMapeo } = this.filaADto(fila, especialidadPorNombre);
       erroresFila.push(...erroresMapeo);
       const instancia = plainToInstance(CrearEgresadoDto, dto);
       erroresFila.push(...this.aplanarErrores(await validate(instancia)));
 
-      // 2) Duplicados dentro del mismo archivo
       if (rut && rutsEnArchivo.has(rut)) {
         erroresFila.push(`RUT repetido en el archivo (ya aparece en la fila ${rutsEnArchivo.get(rut)})`);
       }
@@ -100,7 +96,6 @@ export class CargaMasivaService {
         erroresFila.push(`Correo repetido en el archivo (fila ${correosEnArchivo.get(correo)})`);
       }
 
-      // 3) Reglas de negocio contra la base de datos (RUT ya registrado, etc.)
       if (!erroresFila.length) {
         erroresFila.push(...(await this.egresadosService.validarRegistro(instancia)));
       }
@@ -142,7 +137,7 @@ export class CargaMasivaService {
   private leerCsv(buffer: Buffer): FilaCsv[] {
     const texto = buffer.toString('utf8').replace(/^﻿/, '');
     const primeraLinea = texto.split(/\r?\n/, 1)[0] ?? '';
-    // Excel en español guarda los CSV con ";" en vez de ","
+    // Excel en español usa ";"
     const delimitador = primeraLinea.split(';').length > primeraLinea.split(',').length ? ';' : ',';
 
     let filas: FilaCsv[];

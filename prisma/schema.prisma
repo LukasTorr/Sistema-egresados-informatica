@@ -1,11 +1,3 @@
-// =====================================================================
-//  Sistema de Seguimiento de Egresados ICCI - Esquema de base de datos
-//  Basado en el diagrama "MODELADO 16_10".
-//  Los nombres de tablas y columnas siguen el diagrama (snake_case).
-//  Ver README.md > "Decisiones sobre el diagrama" para los campos que
-//  estaban marcados con "??" y para las tablas agregadas.
-// =====================================================================
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,10 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
-// ---------------------------------------------------------------------
-//  ENUMS
-// ---------------------------------------------------------------------
 
 enum RolCuenta {
   ADMINISTRADOR
@@ -117,16 +105,12 @@ enum CanalComunicacion {
   PORTAL_Y_CORREO
 }
 
-// ---------------------------------------------------------------------
-//  CUENTAS Y USUARIOS
-// ---------------------------------------------------------------------
-
 model cuenta {
   id_cuenta          Int       @id @default(autoincrement())
   correo             String    @unique @db.VarChar(150)
   contrasena_hash    String    @db.VarChar(255)
   rol                RolCuenta
-  fecha_verificacion DateTime? // null = correo aún no verificado
+  fecha_verificacion DateTime?
   activo             Boolean   @default(true)
   fecha_creacion     DateTime  @default(now())
 
@@ -167,15 +151,11 @@ model especialidad {
   @@map("especialidad")
 }
 
-// ---------------------------------------------------------------------
-//  EGRESADOS
-// ---------------------------------------------------------------------
-
 model egresado {
   id_egresado         Int          @id @default(autoincrement())
   id_cuenta           Int?         @unique
   id_especialidad     Int?
-  rut                 String       @unique @db.VarChar(12) // formato 12345678-9
+  rut                 String       @unique @db.VarChar(12)
   nombres             String       @db.VarChar(100)
   apellido_paterno    String       @db.VarChar(60)
   apellido_materno    String?      @db.VarChar(60)
@@ -243,7 +223,6 @@ model situacion_laboral {
   @@map("situacion_laboral")
 }
 
-// Bitácora de cambios del perfil (quién cambió qué y cuándo)
 model movimiento_perfil {
   id_movimiento   Int      @id @default(autoincrement())
   id_egresado     Int
@@ -258,10 +237,6 @@ model movimiento_perfil {
 
   @@map("movimiento_perfil")
 }
-
-// ---------------------------------------------------------------------
-//  OFERTAS, ACTIVIDADES Y REPORTES (sprints siguientes)
-// ---------------------------------------------------------------------
 
 model oferta_laboral {
   id_oferta         Int          @id @default(autoincrement())
@@ -342,8 +317,8 @@ model informe_cierre {
   id_funcionario        Int
   fecha_generacion      DateTime @default(now())
   total_inscritos       Int      @default(0)
-  asistentes_completos  Int      @default(0) // asistieron a todas las sesiones
-  asistentes_parciales  Int      @default(0) // asistieron a algunas sesiones
+  asistentes_completos  Int      @default(0)
+  asistentes_parciales  Int      @default(0)
   porcentaje_asistencia Decimal  @db.Decimal(5, 2)
   observaciones         String?  @db.Text
 
@@ -352,10 +327,6 @@ model informe_cierre {
 
   @@map("informe_cierre")
 }
-
-// ---------------------------------------------------------------------
-//  ENCUESTAS (sprints siguientes)
-// ---------------------------------------------------------------------
 
 model encuesta {
   id_encuesta  Int          @id @default(autoincrement())
@@ -396,21 +367,16 @@ model respuesta {
   @@map("respuesta")
 }
 
-// ---------------------------------------------------------------------
-//  COMUNICACIONES (HU-04) - tabla agregada, no estaba en el diagrama
-// ---------------------------------------------------------------------
-
 model comunicacion {
   id_comunicacion     Int               @id @default(autoincrement())
-  id_funcionario      Int? // null si la publicó un admin sin ficha de funcionario
+  id_funcionario      Int?
   id_cuenta_autor     Int
   titulo              String            @db.VarChar(150)
   contenido           String            @db.Text
   canal               CanalComunicacion @default(PORTAL)
-  // Filtros de destinatarios (null = todos los egresados)
   id_especialidad     Int?
   anio_egreso         Int?
-  total_destinatarios Int               @default(0) // registro del envío
+  total_destinatarios Int               @default(0)
   fecha_publicacion   DateTime          @default(now())
 
   funcionario  funcionario?  @relation(fields: [id_funcionario], references: [id_funcionario])

@@ -41,7 +41,7 @@ const GESTION = [RolCuenta.ADMINISTRADOR, RolCuenta.FUNCIONARIO];
 export class EgresadosController {
   constructor(private readonly egresadosService: EgresadosService) {}
 
-  // ----- Perfil propio (rol EGRESADO). Va antes de ':id' para que no choque. -----
+  // Perfil propio: va antes de ':id'
 
   @Get('me')
   @Roles(RolCuenta.EGRESADO)
@@ -63,7 +63,7 @@ export class EgresadosController {
     return this.egresadosService.actualizar(this.egresadosService.idPropio(usuario), dto, usuario);
   }
 
-  // ----- HU-01 -----
+  // HU-01
 
   @Post()
   @Roles(...GESTION)
@@ -79,7 +79,7 @@ export class EgresadosController {
     return this.egresadosService.crear(dto, usuario);
   }
 
-  // ----- HU-02 -----
+  // HU-02
 
   @Get()
   @Roles(...GESTION)
@@ -121,8 +121,6 @@ export class EgresadosController {
     return this.egresadosService.historial(id);
   }
 
-  // ----- Correos -----
-
   @Post(':id/correos')
   @ApiTags('Egresados · Contacto')
   @ApiOperation({ summary: 'Agregar correo' })
@@ -160,8 +158,6 @@ export class EgresadosController {
     return this.egresadosService.eliminarCorreo(id, id_correo, usuario);
   }
 
-  // ----- Teléfonos -----
-
   @Post(':id/telefonos')
   @ApiTags('Egresados · Contacto')
   @ApiOperation({ summary: 'Agregar teléfono' })
@@ -198,8 +194,6 @@ export class EgresadosController {
     this.egresadosService.verificarAcceso(usuario, id);
     return this.egresadosService.eliminarTelefono(id, id_telefono, usuario);
   }
-
-  // ----- Situación laboral -----
 
   @Get(':id/situaciones-laborales')
   @ApiTags('Egresados · Situación laboral')

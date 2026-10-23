@@ -28,7 +28,6 @@ export class ComunicacionesService {
       throw new BadRequestException(`La especialidad ${dto.id_especialidad} no existe`);
     }
 
-    // Registro del envío: cuántos egresados quedan como destinatarios al momento de publicar
     const total_destinatarios = await this.prisma.egresado.count({
       where: {
         estado_perfil: { not: EstadoPerfil.INACTIVO },
@@ -61,7 +60,6 @@ export class ComunicacionesService {
     return { total, pagina: paginacion.pagina, por_pagina: paginacion.por_pagina, datos };
   }
 
-  /** Comunicaciones dirigidas al egresado con la sesión iniciada. */
   async misComunicaciones(usuario: UsuarioToken, paginacion: PaginacionDto) {
     const where = await this.filtroDestinatario(usuario);
     const [total, datos] = await this.prisma.$transaction([

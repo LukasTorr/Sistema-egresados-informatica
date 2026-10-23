@@ -1,7 +1,3 @@
-/**
- * Datos iniciales: especialidades y una cuenta ADMINISTRADOR.
- * Ejecutar con:  npm run prisma:seed
- */
 import 'dotenv/config';
 import { PrismaClient, RolCuenta, CargoFuncionario, RolFuncionario } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';

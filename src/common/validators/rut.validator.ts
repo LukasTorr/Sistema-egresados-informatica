@@ -1,13 +1,11 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 
-/** Deja el RUT como "12345678-9" (sin puntos, DV en mayúscula). */
 export function normalizarRut(rut: string): string {
   const limpio = String(rut).replace(/[.\s-]/g, '').toUpperCase();
   if (limpio.length < 2) return limpio;
   return `${limpio.slice(0, -1)}-${limpio.slice(-1)}`;
 }
 
-/** Valida el dígito verificador de un RUT chileno. */
 export function esRutValido(rut: string): boolean {
   if (typeof rut !== 'string') return false;
   const [cuerpo, dv] = normalizarRut(rut).split('-');
