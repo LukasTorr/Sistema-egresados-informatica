@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CanalComunicacion } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 const recortar = ({ value }) => (typeof value === 'string' ? value.trim() : value);
+const sinFiltro = ({ value }) => (value === 0 || value === '0' || value === '' || value === null ? undefined : value);
 
 export class CrearComunicacionDto {
   @ApiProperty({ example: 'Encuentro de egresados 2026' })
@@ -28,15 +29,18 @@ export class CrearComunicacionDto {
   @IsEnum(CanalComunicacion)
   canal?: CanalComunicacion;
 
-  @ApiPropertyOptional({ description: 'Solo para egresados de esta especialidad (vacío = todas)' })
+  @ApiPropertyOptional({ example: 1, description: 'Solo para egresados de esta especialidad (vacío o 0 = todas)' })
+  @Transform(sinFiltro)
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   id_especialidad?: number;
 
-  @ApiPropertyOptional({ description: 'Solo para egresados de este año de egreso (vacío = todos)' })
+  @ApiPropertyOptional({ example: 2024, description: 'Solo para egresados de este año de egreso (vacío o 0 = todos)' })
+  @Transform(sinFiltro)
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1950)
   anio_egreso?: number;
 }

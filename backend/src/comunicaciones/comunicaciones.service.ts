@@ -22,7 +22,7 @@ export class ComunicacionesService {
 
   async publicar(dto: CrearComunicacionDto, autor: UsuarioToken) {
     if (
-      dto.id_especialidad &&
+      dto.id_especialidad !== undefined &&
       !(await this.prisma.especialidad.findUnique({ where: { id_especialidad: dto.id_especialidad } }))
     ) {
       throw new BadRequestException(`La especialidad ${dto.id_especialidad} no existe`);
