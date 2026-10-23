@@ -1,0 +1,422 @@
+// =====================================================================
+//  Sistema de Seguimiento de Egresados ICCI - Esquema de base de datos
+//  Basado en el diagrama "MODELADO 16_10".
+//  Los nombres de tablas y columnas siguen el diagrama (snake_case).
+//  Ver README.md > "Decisiones sobre el diagrama" para los campos que
+//  estaban marcados con "??" y para las tablas agregadas.
+// =====================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------
+//  ENUMS
+// ---------------------------------------------------------------------
+
+enum RolCuenta {
+  ADMINISTRADOR
+  FUNCIONARIO
+  EGRESADO
+}
+
+enum CargoFuncionario {
+  JEFE_CARRERA
+  SECRETARIA
+  COORDINADOR
+  DOCENTE
+  OTRO
+}
+
+enum RolFuncionario {
+  ADMINISTRADOR
+  GESTOR
+  LECTOR
+}
+
+enum EstadoPerfil {
+  INCOMPLETO
+  ACTIVO
+  INACTIVO
+}
+
+enum TipoCorreo {
+  PERSONAL
+  INSTITUCIONAL
+  LABORAL
+}
+
+enum TipoTelefono {
+  MOVIL
+  FIJO
+  LABORAL
+}
+
+enum EstadoLaboral {
+  EMPLEADO
+  INDEPENDIENTE
+  DESEMPLEADO
+  ESTUDIANDO
+  OTRO
+}
+
+enum RangoSueldo {
+  MENOS_500K
+  ENTRE_500K_1M
+  ENTRE_1M_1_5M
+  ENTRE_1_5M_2M
+  ENTRE_2M_3M
+  MAS_3M
+  NO_INFORMA
+}
+
+enum TipoOferta {
+  EMPLEO
+  PRACTICA
+  PART_TIME
+  FREELANCE
+}
+
+enum OrigenOferta {
+  INTERNA
+  EMPRESA
+  EXTERNA
+}
+
+enum TipoActividad {
+  CHARLA
+  TALLER
+  SEMINARIO
+  FERIA_LABORAL
+  REUNION
+  OTRO
+}
+
+enum TipoEncuesta {
+  SEGUIMIENTO
+  SATISFACCION
+  EMPLEABILIDAD
+}
+
+enum TipoPregunta {
+  TEXTO
+  NUMERO
+  SI_NO
+  ESCALA
+  OPCION_MULTIPLE
+}
+
+enum CanalComunicacion {
+  PORTAL
+  CORREO
+  PORTAL_Y_CORREO
+}
+
+// ---------------------------------------------------------------------
+//  CUENTAS Y USUARIOS
+// ---------------------------------------------------------------------
+
+model cuenta {
+  id_cuenta          Int       @id @default(autoincrement())
+  correo             String    @unique @db.VarChar(150)
+  contrasena_hash    String    @db.VarChar(255)
+  rol                RolCuenta
+  fecha_verificacion DateTime? // null = correo aún no verificado
+  activo             Boolean   @default(true)
+  fecha_creacion     DateTime  @default(now())
+
+  funcionario       funcionario?
+  egresado          egresado?
+  movimientos_autor movimiento_perfil[]
+  comunicaciones    comunicacion[]
+
+  @@map("cuenta")
+}
+
+model funcionario {
+  id_funcionario   Int              @id @default(autoincrement())
+  id_cuenta        Int              @unique
+  nombres          String           @db.VarChar(100)
+  apellido_paterno String           @db.VarChar(60)
+  apellido_materno String?          @db.VarChar(60)
+  cargo            CargoFuncionario
+  rol_funcionario  RolFuncionario
+
+  cuenta          cuenta           @relation(fields: [id_cuenta], references: [id_cuenta])
+  ofertas         oferta_laboral[]
+  actividades     actividad[]
+  reportes        reporte[]
+  informes_cierre informe_cierre[]
+  comunicaciones  comunicacion[]
+
+  @@map("funcionario")
+}
+
+model especialidad {
+  id_especialidad Int    @id @default(autoincrement())
+  nombre          String @unique @db.VarChar(120)
+
+  egresados      egresado[]
+  comunicaciones comunicacion[]
+
+  @@map("especialidad")
+}
+
+// ---------------------------------------------------------------------
+//  EGRESADOS
+// ---------------------------------------------------------------------
+
+model egresado {
+  id_egresado         Int          @id @default(autoincrement())
+  id_cuenta           Int?         @unique
+  id_especialidad     Int?
+  rut                 String       @unique @db.VarChar(12) // formato 12345678-9
+  nombres             String       @db.VarChar(100)
+  apellido_paterno    String       @db.VarChar(60)
+  apellido_materno    String?      @db.VarChar(60)
+  ciudad_residencia   String?      @db.VarChar(100)
+  anio_ingreso        Int?
+  anio_egreso         Int?
+  estado_perfil       EstadoPerfil @default(INCOMPLETO)
+  fecha_creacion      DateTime     @default(now())
+  fecha_actualizacion DateTime     @updatedAt
+
+  cuenta        cuenta?             @relation(fields: [id_cuenta], references: [id_cuenta])
+  especialidad  especialidad?       @relation(fields: [id_especialidad], references: [id_especialidad])
+  correos       egresado_correo[]
+  telefonos     egresado_telefono[]
+  situaciones   situacion_laboral[]
+  movimientos   movimiento_perfil[]
+  inscripciones inscripcion[]
+  respuestas    respuesta[]
+
+  @@index([apellido_paterno])
+  @@index([anio_egreso])
+  @@map("egresado")
+}
+
+model egresado_correo {
+  id_correo    Int        @id @default(autoincrement())
+  id_egresado  Int
+  correo       String     @db.VarChar(150)
+  tipo         TipoCorreo @default(PERSONAL)
+  es_principal Boolean    @default(false)
+
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+
+  @@unique([id_egresado, correo])
+  @@map("egresado_correo")
+}
+
+model egresado_telefono {
+  id_telefono  Int          @id @default(autoincrement())
+  id_egresado  Int
+  telefono     String       @db.VarChar(20)
+  tipo         TipoTelefono @default(MOVIL)
+  es_principal Boolean      @default(false)
+
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+
+  @@unique([id_egresado, telefono])
+  @@map("egresado_telefono")
+}
+
+model situacion_laboral {
+  id_situacion   Int           @id @default(autoincrement())
+  id_egresado    Int
+  estado_laboral EstadoLaboral
+  empresa        String?       @db.VarChar(150)
+  cargo          String?       @db.VarChar(120)
+  rango_sueldo   RangoSueldo?
+  fecha_inicio   DateTime?     @db.Date
+  fecha_termino  DateTime?     @db.Date
+  es_actual      Boolean       @default(true)
+
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+
+  @@index([id_egresado, es_actual])
+  @@map("situacion_laboral")
+}
+
+// Bitácora de cambios del perfil (quién cambió qué y cuándo)
+model movimiento_perfil {
+  id_movimiento   Int      @id @default(autoincrement())
+  id_egresado     Int
+  id_cuenta_autor Int?
+  campo           String   @db.VarChar(80)
+  valor_anterior  String?  @db.VarChar(500)
+  valor_nuevo     String?  @db.VarChar(500)
+  fecha           DateTime @default(now())
+
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+  autor    cuenta?  @relation(fields: [id_cuenta_autor], references: [id_cuenta])
+
+  @@map("movimiento_perfil")
+}
+
+// ---------------------------------------------------------------------
+//  OFERTAS, ACTIVIDADES Y REPORTES (sprints siguientes)
+// ---------------------------------------------------------------------
+
+model oferta_laboral {
+  id_oferta         Int          @id @default(autoincrement())
+  id_funcionario    Int
+  titulo            String       @db.VarChar(150)
+  empresa           String       @db.VarChar(150)
+  requisitos        String?      @db.Text
+  tipo              TipoOferta
+  origen            OrigenOferta
+  url_postulacion   String?      @db.VarChar(255)
+  correo_contacto   String?      @db.VarChar(150)
+  fecha_publicacion DateTime     @default(now())
+  fecha_cierre      DateTime?    @db.Date
+
+  funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
+
+  @@map("oferta_laboral")
+}
+
+model actividad {
+  id_actividad   Int           @id @default(autoincrement())
+  id_funcionario Int
+  titulo         String        @db.VarChar(150)
+  descripcion    String?       @db.Text
+  tipo           TipoActividad
+  lugar          String?       @db.VarChar(150)
+
+  funcionario    funcionario     @relation(fields: [id_funcionario], references: [id_funcionario])
+  sesiones       sesion[]
+  encuestas      encuesta[]
+  reportes       reporte[]
+  informe_cierre informe_cierre?
+
+  @@map("actividad")
+}
+
+model sesion {
+  id_sesion    Int      @id @default(autoincrement())
+  id_actividad Int
+  fecha        DateTime @db.Date
+  hora_inicio  DateTime @db.Time(0)
+  hora_fin     DateTime @db.Time(0)
+
+  actividad     actividad     @relation(fields: [id_actividad], references: [id_actividad], onDelete: Cascade)
+  inscripciones inscripcion[]
+
+  @@map("sesion")
+}
+
+model inscripcion {
+  id_inscripcion    Int      @id @default(autoincrement())
+  id_sesion         Int
+  id_egresado       Int
+  fecha_inscripcion DateTime @default(now())
+  asistio           Boolean  @default(false)
+
+  sesion   sesion   @relation(fields: [id_sesion], references: [id_sesion], onDelete: Cascade)
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+
+  @@unique([id_sesion, id_egresado])
+  @@map("inscripcion")
+}
+
+model reporte {
+  id_reporte     Int  @id @default(autoincrement())
+  id_funcionario Int
+  id_actividad   Int?
+
+  funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
+  actividad   actividad?  @relation(fields: [id_actividad], references: [id_actividad])
+
+  @@map("reporte")
+}
+
+model informe_cierre {
+  id_informe            Int      @id @default(autoincrement())
+  id_actividad          Int      @unique
+  id_funcionario        Int
+  fecha_generacion      DateTime @default(now())
+  total_inscritos       Int      @default(0)
+  asistentes_completos  Int      @default(0) // asistieron a todas las sesiones
+  asistentes_parciales  Int      @default(0) // asistieron a algunas sesiones
+  porcentaje_asistencia Decimal  @db.Decimal(5, 2)
+  observaciones         String?  @db.Text
+
+  actividad   actividad   @relation(fields: [id_actividad], references: [id_actividad])
+  funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
+
+  @@map("informe_cierre")
+}
+
+// ---------------------------------------------------------------------
+//  ENCUESTAS (sprints siguientes)
+// ---------------------------------------------------------------------
+
+model encuesta {
+  id_encuesta  Int          @id @default(autoincrement())
+  id_actividad Int?
+  titulo       String       @db.VarChar(150)
+  tipo         TipoEncuesta
+  fecha_cierre DateTime?    @db.Date
+
+  actividad actividad? @relation(fields: [id_actividad], references: [id_actividad])
+  preguntas pregunta[]
+
+  @@map("encuesta")
+}
+
+model pregunta {
+  id_pregunta Int          @id @default(autoincrement())
+  id_encuesta Int
+  enunciado   String       @db.VarChar(500)
+  tipo        TipoPregunta
+
+  encuesta   encuesta    @relation(fields: [id_encuesta], references: [id_encuesta], onDelete: Cascade)
+  respuestas respuesta[]
+
+  @@map("pregunta")
+}
+
+model respuesta {
+  id_respuesta Int      @id @default(autoincrement())
+  id_pregunta  Int
+  id_egresado  Int
+  valor        String   @db.Text
+  fecha        DateTime @default(now())
+
+  pregunta pregunta @relation(fields: [id_pregunta], references: [id_pregunta], onDelete: Cascade)
+  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
+
+  @@unique([id_pregunta, id_egresado])
+  @@map("respuesta")
+}
+
+// ---------------------------------------------------------------------
+//  COMUNICACIONES (HU-04) - tabla agregada, no estaba en el diagrama
+// ---------------------------------------------------------------------
+
+model comunicacion {
+  id_comunicacion     Int               @id @default(autoincrement())
+  id_funcionario      Int? // null si la publicó un admin sin ficha de funcionario
+  id_cuenta_autor     Int
+  titulo              String            @db.VarChar(150)
+  contenido           String            @db.Text
+  canal               CanalComunicacion @default(PORTAL)
+  // Filtros de destinatarios (null = todos los egresados)
+  id_especialidad     Int?
+  anio_egreso         Int?
+  total_destinatarios Int               @default(0) // registro del envío
+  fecha_publicacion   DateTime          @default(now())
+
+  funcionario  funcionario?  @relation(fields: [id_funcionario], references: [id_funcionario])
+  autor        cuenta        @relation(fields: [id_cuenta_autor], references: [id_cuenta])
+  especialidad especialidad? @relation(fields: [id_especialidad], references: [id_especialidad])
+
+  @@index([fecha_publicacion])
+  @@map("comunicacion")
+}
