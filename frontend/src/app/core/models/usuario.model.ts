@@ -5,8 +5,10 @@ export type RolUsuario =
   | 'jefe_comision_evaluacion'
   | 'egresado';
 
+export type RolCuenta = 'ADMINISTRADOR' | 'FUNCIONARIO' | 'EGRESADO';
+
 export interface CredencialesLogin {
-  rut: string;
+  correo: string;
   clave: string;
 }
 
@@ -27,13 +29,16 @@ export interface UsuarioAutenticado {
   rut: string;
   correo: string;
   rol: RolUsuario;
+  rolCuenta?: RolCuenta;
+  token?: string;
+  idEgresado?: number;
+  idFuncionario?: number;
   telefono?: string;
   empresa?: string;
   cargo?: string;
   rangoSueldo?: string;
 }
 
-/** Datos editables desde "Mi perfil" (todo excepto rut, correo institucional y rol). */
 export interface PerfilEditable {
   nombres: string;
   apellidos: string;

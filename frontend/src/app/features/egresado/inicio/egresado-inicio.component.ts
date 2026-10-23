@@ -1,4 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, signal } from '@angular/core';
+
+import { API_URL } from '../../../core/api';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -25,12 +28,14 @@ import { AuthService } from '../../../core/services/auth.service';
     <article class="card">
       <h2 class="card__titulo">Comunicaciones del departamento</h2>
       <ul class="lista">
-        @for (c of comunicaciones; track c.titulo) {
+        @for (c of comunicaciones(); track c.id) {
           <li class="item">
             <p class="item__titulo">{{ c.titulo }}</p>
             <p class="item__meta">{{ c.meta }}</p>
             <p class="item__texto">{{ c.texto }}</p>
           </li>
+        } @empty {
+          <li class="item"><p class="item__texto">No tienes comunicaciones por ahora.</p></li>
         }
       </ul>
     </article>
@@ -110,23 +115,23 @@ import { AuthService } from '../../../core/services/auth.service';
 export class EgresadoInicioComponent {
   readonly auth = inject(AuthService);
 
-  readonly comunicaciones = [
-    {
-      titulo: 'Invitación: Encuentro de egresados 2026',
-      meta: 'Hoy · Secretaría DICI',
-      texto:
-        'Te invitamos al Encuentro de Egresados ICCI 2026, el 5 de noviembre en Campus Saucache.',
-    },
-    {
-      titulo: 'Encuesta de empleabilidad 2026',
-      meta: '02/10 · Jefatura de Carrera',
-      texto:
-        'Tu opinión nos ayuda a ajustar el perfil de egreso. Toma menos de 5 minutos.',
-    },
-    {
-      titulo: 'Nueva oferta: Analista de datos en Puerto Arica',
-      meta: '28/09 · Secretaría DICI',
-      texto: 'Se publicó una nueva oportunidad laboral acorde a tu área.',
-    },
-  ];
+  private readonly http = inject(HttpClient);
+
+  readonly comunicaciones = signal<{ id: number; titulo: string; meta: string; texto: string }[]>([]);
+
+  constructor() {
+    this.http.get<{ datos: any[] }>(`${API_URL}/comunicaciones/mis-comunicaciones`).subscribe({
+      next: (res) =>
+        this.comunicaciones.set(
+          res.datos.map((c) => ({
+            id: c.id_comunicacion,
+            titulo: c.titulo,
+            meta: `${new Date(c.fecha_publicacion).toLocaleDateString('es-CL')} · ${
+              c.funcionario ? `${c.funcionario.nombres} ${c.funcionario.apellido_paterno}` : 'Secretaría DICI'
+            }`,
+            texto: c.contenido,
+          })),
+        ),
+    });
+  }
 }
