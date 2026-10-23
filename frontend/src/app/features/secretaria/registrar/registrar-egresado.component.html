@@ -1,0 +1,217 @@
+<header class="head">
+  <h1 class="head__title">Registrar egresado</h1>
+  <p class="head__subtitle">HU-01 · Los campos marcados con * son obligatorios y se validan antes de guardar</p>
+</header>
+
+@if (mensajeOk()) {
+  <div class="alert alert--ok" role="status">{{ mensajeOk() }}</div>
+}
+@if (errorServidor()) {
+  <div class="alert alert--error" role="alert">{{ errorServidor() }}</div>
+}
+@if (intentoFallido()) {
+  <div class="alert alert--error" role="alert">Revisa los campos marcados en rojo antes de guardar.</div>
+}
+
+<form [formGroup]="form" (ngSubmit)="guardar()" novalidate class="layout">
+  <div class="main">
+    <!-- Datos personales -->
+    <section class="card">
+      <h2 class="card__title">Datos personales</h2>
+
+      <div class="row row--2">
+        <div class="field" [class.field--error]="invalido('nombres')">
+          <label for="nombres">Nombres *</label>
+          <input id="nombres" type="text" formControlName="nombres" placeholder="Ej: Camila Andrea" />
+          @if (invalido('nombres')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+        </div>
+        <div class="field" [class.field--error]="invalido('apellidos')">
+          <label for="apellidos">Apellidos *</label>
+          <input id="apellidos" type="text" formControlName="apellidos" placeholder="Ej: Rojas Huanca" />
+          @if (invalido('apellidos')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+        </div>
+      </div>
+
+      <div class="row row--3">
+        <div class="field" [class.field--error]="invalido('rut')">
+          <label for="rut">RUT *</label>
+          <input id="rut" type="text" formControlName="rut" placeholder="12.345.678-9" (input)="onRutInput($event)" />
+          @if (rutValido) {
+            <span class="field__hint field__hint--ok">Formato válido ✓</span>
+          } @else if (invalido('rut')) {
+            <span class="field__hint field__hint--error">Ingrese un RUT válido</span>
+          }
+        </div>
+        <div class="field">
+          <label for="fechaNacimiento">Fecha de nacimiento</label>
+          <input id="fechaNacimiento" type="date" formControlName="fechaNacimiento" />
+        </div>
+        <div class="field">
+          <label for="genero">Género</label>
+          <select id="genero" formControlName="genero">
+            <option value="">Seleccionar</option>
+            @for (g of generos; track g) {
+              <option [value]="g">{{ g }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section class="card">
+      <h2 class="card__title">Contacto</h2>
+
+      <div class="row row--2">
+        <div class="field" [class.field--error]="correoDuplicado || invalido('correo')">
+          <label for="correo">Correo personal *</label>
+          <input id="correo" type="email" formControlName="correo" />
+          @if (correoDuplicado) {
+            <span class="field__hint field__hint--error">Este correo ya existe en el directorio (posible duplicado).</span>
+          } @else if (invalido('correo')) {
+            <span class="field__hint field__hint--error">Ingrese un correo válido</span>
+          }
+        </div>
+        <div class="field" [class.field--error]="invalido('telefono')">
+          <label for="telefono">Teléfono *</label>
+          <input id="telefono" type="tel" formControlName="telefono" placeholder="+56 9 ____ ____" />
+          @if (invalido('telefono')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+        </div>
+      </div>
+
+      <div class="row row--2">
+        <div class="field">
+          <label for="region">Ciudad / región</label>
+          <select id="region" formControlName="region">
+            <option value="">Seleccionar</option>
+            @for (r of regiones; track r) {
+              <option [value]="r">{{ r }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="linkedin">LinkedIn (opcional)</label>
+          <input id="linkedin" type="text" formControlName="linkedin" placeholder="linkedin.com/in/..." />
+        </div>
+      </div>
+
+      <div class="row row--2">
+        <div class="field" [class.field--error]="form.controls.contrasena.touched && form.controls.contrasena.invalid">
+          <label for="contrasena">Contraseña inicial (opcional)</label>
+          <input id="contrasena" type="password" formControlName="contrasena" autocomplete="new-password" />
+          <span class="field__hint">Si la ingresas, el egresado podrá iniciar sesión con su correo. Mínimo 8 caracteres.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Datos académicos -->
+    <section class="card">
+      <h2 class="card__title">Datos académicos</h2>
+
+      <div class="row row--4">
+        <div class="field" [class.field--error]="invalido('anioIngreso')">
+          <label for="anioIngreso">Año de ingreso *</label>
+          <select id="anioIngreso" formControlName="anioIngreso">
+            <option value="">Seleccionar</option>
+            @for (a of anios; track a) {
+              <option [value]="a">{{ a }}</option>
+            }
+          </select>
+        </div>
+        <div class="field" [class.field--error]="invalido('anioEgreso')">
+          <label for="anioEgreso">Año de egreso *</label>
+          <select id="anioEgreso" formControlName="anioEgreso">
+            <option value="">Seleccionar</option>
+            @for (a of anios; track a) {
+              <option [value]="a">{{ a }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="anioTitulacion">Año de titulación</label>
+          <select id="anioTitulacion" formControlName="anioTitulacion">
+            <option value="">Seleccionar</option>
+            @for (a of anios; track a) {
+              <option [value]="a">{{ a }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="area">Área / especialidad</label>
+          <select id="area" formControlName="area">
+            <option value="">Seleccionar</option>
+            @for (e of especialidades(); track e.id_especialidad) {
+              <option [value]="e.id_especialidad">{{ e.nombre }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Situación laboral -->
+    <section class="card">
+      <h2 class="card__title">Situación laboral *</h2>
+
+      <div class="tabs" role="group" aria-label="Situación laboral">
+        @for (s of situaciones; track s.valor) {
+          <button
+            type="button"
+            class="tabs__item"
+            [class.is-active]="form.controls.situacion.value === s.valor"
+            [attr.aria-pressed]="form.controls.situacion.value === s.valor"
+            (click)="seleccionarSituacion(s.valor)"
+          >
+            {{ s.etiqueta }}
+          </button>
+        }
+      </div>
+
+      @if (muestraEmpresa) {
+        <div class="row row--2">
+          <div class="field">
+            <label for="empresa">Empresa / institución</label>
+            <input id="empresa" type="text" formControlName="empresa" placeholder="Ej: Codelco, Entel, Startup..." />
+          </div>
+          <div class="field">
+            <label for="cargo">Cargo</label>
+            <input id="cargo" type="text" formControlName="cargo" placeholder="Ej: Desarrolladora backend" />
+          </div>
+        </div>
+      }
+    </section>
+  </div>
+
+  <aside class="side">
+    <section class="card">
+      <h2 class="card__title">Antes de guardar</h2>
+      <ul class="checklist">
+        @for (item of checklist(); track item.texto) {
+          <li class="checklist__item">
+            <span class="check check--{{ item.estado }}" aria-hidden="true">
+              @switch (item.estado) {
+                @case ('ok') { ✓ }
+                @case ('error') { ✕ }
+                @default { ! }
+              }
+            </span>
+            <span>{{ item.texto }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="info">
+      <p class="info__title">Cuenta del egresado</p>
+      <p class="info__text">
+        Al guardar se crea una cuenta con rol Egresado y se envía un correo de activación para que pueda iniciar sesión y actualizar su perfil.
+      </p>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn btn--outline" (click)="cancelar()">Cancelar</button>
+      <button type="submit" class="btn btn--primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar egresado' }}
+      </button>
+    </div>
+  </aside>
+</form>

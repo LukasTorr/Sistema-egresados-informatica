@@ -1,0 +1,69 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <div>
+        <p class="sidebar__title">SSE · ICCI</p>
+        <p class="sidebar__subtitle">Seguimiento de Egresados</p>
+      </div>
+    </div>
+
+    <p class="sidebar__section">{{ config().etiquetaMenu }}</p>
+
+    <nav class="sidebar__nav">
+      @for (item of config().items; track item.ruta) {
+        <a
+          [routerLink]="item.ruta"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exacto }"
+          class="nav-item"
+        >
+          <span class="nav-item__dot"></span>
+          {{ item.etiqueta }}
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="user-card">
+        <span class="avatar">{{ iniciales() }}</span>
+        <div>
+          <p class="user-card__name">{{ nombreCompleto() }}</p>
+          <p class="user-card__role">{{ cargo() }}</p>
+        </div>
+      </div>
+      <button type="button" class="sidebar__logout" (click)="pedirConfirmacionCierreSesion()">
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <div class="shell__main">
+    <header class="topbar">
+      <p class="topbar__crumb">{{ config().titulo }} / {{ seccionActual() }}</p>
+      <div class="topbar__spacer"></div>
+      @if (config().admin) {
+        <input class="topbar__search" type="search" placeholder="Buscar egresado, RUT o actividad…" />
+      }
+      <span class="topbar__notif">
+        Notificaciones <span class="badge-count">{{ config().notificaciones }}</span>
+      </span>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  @if (confirmandoCierreSesion()) {
+    <div class="modal-overlay" (click)="cancelarCierreSesion()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <h2 class="modal-card__title">¿Estás seguro que quieres cerrar sesión?</h2>
+        <p class="modal-card__text">Tendrás que volver a ingresar para acceder de nuevo.</p>
+        <div class="modal-card__actions">
+          <button type="button" class="btn btn--ghost" (click)="cancelarCierreSesion()">Cancelar</button>
+          <button type="button" class="btn btn--danger" (click)="confirmarCierreSesion()">Sí, cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
