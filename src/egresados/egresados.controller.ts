@@ -64,7 +64,6 @@ export class EgresadosController {
   }
 
   // HU-01
-
   @Post()
   @Roles(...GESTION)
   @ApiTags('HU-01 · Registrar egresado')
@@ -80,7 +79,6 @@ export class EgresadosController {
   }
 
   // HU-02
-
   @Get()
   @Roles(...GESTION)
   @ApiTags('HU-02 · Consultar y actualizar egresados')
