@@ -1,0 +1,75 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <svg class="sidebar__logo" viewBox="0 0 40 46" role="img" aria-label="Escudo institucional">
+        <path d="M2 2 H38 V24 C38 36 28 43 20 45 C12 43 2 36 2 24 Z" fill="#1b2a47" stroke="#eaa617" stroke-width="2.5" />
+        <rect x="8" y="8" width="24" height="12" fill="#2d5586" />
+        <circle cx="20" cy="29" r="6" fill="#eaa617" />
+        <path d="M17 29 h6 M20 26 v6" stroke="#1b2a47" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <div>
+        <p class="sidebar__title">SSE · ICCI</p>
+        <p class="sidebar__subtitle">Seguimiento de Egresados</p>
+      </div>
+    </div>
+
+    <p class="sidebar__section">{{ config().etiquetaMenu }}</p>
+
+    <nav class="sidebar__nav">
+      @for (item of config().items; track item.ruta) {
+        <a
+          [routerLink]="item.ruta"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exacto }"
+          class="nav-item"
+        >
+          <span class="nav-item__dot"></span>
+          {{ item.etiqueta }}
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="user-card">
+        <span class="avatar">{{ iniciales() }}</span>
+        <div>
+          <p class="user-card__name">{{ nombreCompleto() }}</p>
+          <p class="user-card__role">{{ cargo() }}</p>
+        </div>
+      </div>
+      <button type="button" class="sidebar__logout" (click)="pedirConfirmacionCierreSesion()">
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <div class="shell__main">
+    <header class="topbar">
+      <p class="topbar__crumb">{{ config().titulo }} / {{ seccionActual() }}</p>
+      <div class="topbar__spacer"></div>
+      @if (config().admin) {
+        <input class="topbar__search" type="search" placeholder="Buscar egresado, RUT o actividad…" />
+      }
+      <span class="topbar__notif">
+        Notificaciones <span class="badge-count">{{ config().notificaciones }}</span>
+      </span>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  @if (confirmandoCierreSesion()) {
+    <div class="modal-overlay" (click)="cancelarCierreSesion()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <h2 class="modal-card__title">¿Estás seguro que quieres cerrar sesión?</h2>
+        <p class="modal-card__text">Tendrás que volver a ingresar para acceder de nuevo.</p>
+        <div class="modal-card__actions">
+          <button type="button" class="btn btn--ghost" (click)="cancelarCierreSesion()">Cancelar</button>
+          <button type="button" class="btn btn--danger" (click)="confirmarCierreSesion()">Sí, cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
