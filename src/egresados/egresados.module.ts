@@ -5,7 +5,7 @@ import { EgresadosController } from './egresados.controller';
 import { EgresadosService } from './egresados.service';
 
 @Module({
-  // CargaMasivaController va primero para que sus rutas se registren antes que /egresados/:id
+  // Antes que /egresados/:id
   controllers: [CargaMasivaController, EgresadosController],
   providers: [EgresadosService, CargaMasivaService],
   exports: [EgresadosService],

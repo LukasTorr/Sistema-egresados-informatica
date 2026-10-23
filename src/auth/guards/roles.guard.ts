@@ -4,7 +4,6 @@ import { RolCuenta } from '@prisma/client';
 import { ROLES_KEY } from '../../common/decorators/roles.decorator';
 import { UsuarioToken } from '../../common/decorators/usuario-actual.decorator';
 
-/** Permite el acceso solo a los roles indicados con @Roles(...). */
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}

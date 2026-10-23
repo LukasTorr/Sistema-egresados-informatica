@@ -20,7 +20,6 @@ import { SituacionLaboralDto } from './situacion-laboral.dto';
 const recortar = ({ value }) => (typeof value === 'string' ? value.trim() : value);
 const ANIO_MAX = new Date().getFullYear() + 1;
 
-/** Datos personales que se pueden editar después del registro. */
 export class DatosPersonalesDto {
   @ApiProperty({ example: '12.345.678-5', description: 'Se guarda como 12345678-5' })
   @Transform(({ value }) => (typeof value === 'string' ? normalizarRut(value) : value))
@@ -78,7 +77,6 @@ export class DatosPersonalesDto {
   anio_egreso?: number;
 }
 
-/** HU-01: registro completo (personal + contacto + situación laboral). */
 export class CrearEgresadoDto extends DatosPersonalesDto {
   @ApiPropertyOptional({
     type: [CorreoDto],

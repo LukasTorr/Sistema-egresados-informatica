@@ -23,7 +23,6 @@ import {
   SituacionLaboralDto,
 } from './dto/situacion-laboral.dto';
 
-/** Relaciones que se devuelven al consultar un egresado. */
 const INCLUDE_DETALLE = {
   especialidad: true,
   correos: { orderBy: [{ es_principal: 'desc' }, { id_correo: 'asc' }] },
@@ -50,14 +49,8 @@ type Tx = Prisma.TransactionClient;
 export class EgresadosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // -------------------------------------------------------------------
-  //  HU-01: registrar
-  // -------------------------------------------------------------------
+  // HU-01: registrar
 
-  /**
-   * Revisa las reglas que no cubre class-validator.
-   * Devuelve la lista de errores (vacía si todo está bien); la usa también la carga masiva.
-   */
   async validarRegistro(dto: CrearEgresadoDto, tx: Tx = this.prisma): Promise<string[]> {
     const errores: string[] = [];
     if (!dto.correos?.length && !dto.telefonos?.length) {
@@ -94,7 +87,6 @@ export class EgresadosService {
     return this.prisma.$transaction((tx) => this.crearEnTransaccion(tx, dto, autor));
   }
 
-  /** Inserta el egresado con sus contactos y situación laboral. Asume datos ya validados. */
   async crearEnTransaccion(tx: Tx, dto: CrearEgresadoDto, autor?: UsuarioToken) {
     const { correos = [], telefonos = [], situacion_laboral, contrasena_inicial, ...datos } = dto;
 
@@ -133,9 +125,7 @@ export class EgresadosService {
     return egresado;
   }
 
-  // -------------------------------------------------------------------
-  //  HU-02: consultar
-  // -------------------------------------------------------------------
+  // HU-02: consultar
 
   async listar(filtro: FiltroEgresadosDto) {
     const where: Prisma.egresadoWhereInput = {
@@ -199,9 +189,7 @@ export class EgresadosService {
     });
   }
 
-  // -------------------------------------------------------------------
-  //  HU-02: actualizar
-  // -------------------------------------------------------------------
+  // HU-02: actualizar
 
   async actualizar(
     id_egresado: number,
@@ -230,7 +218,6 @@ export class EgresadosService {
       throw new BadRequestException('anio_egreso no puede ser anterior a anio_ingreso');
     }
 
-    // Solo se registran en la bitácora los campos que realmente cambian.
     const cambios = CAMPOS_AUDITADOS.filter(
       (campo) => datos[campo] !== undefined && datos[campo] !== actual[campo],
     );
@@ -253,10 +240,6 @@ export class EgresadosService {
       });
     });
   }
-
-  // -------------------------------------------------------------------
-  //  Correos
-  // -------------------------------------------------------------------
 
   async agregarCorreo(id_egresado: number, dto: CorreoDto, autor: UsuarioToken) {
     await this.existeOFalla(id_egresado);
@@ -324,10 +307,6 @@ export class EgresadosService {
       return { mensaje: 'Correo eliminado' };
     });
   }
-
-  // -------------------------------------------------------------------
-  //  Teléfonos
-  // -------------------------------------------------------------------
 
   async agregarTelefono(id_egresado: number, dto: TelefonoDto, autor: UsuarioToken) {
     await this.existeOFalla(id_egresado);
@@ -400,10 +379,6 @@ export class EgresadosService {
     });
   }
 
-  // -------------------------------------------------------------------
-  //  Situación laboral
-  // -------------------------------------------------------------------
-
   async listarSituaciones(id_egresado: number) {
     await this.existeOFalla(id_egresado);
     return this.prisma.situacion_laboral.findMany({
@@ -412,7 +387,6 @@ export class EgresadosService {
     });
   }
 
-  /** Registra una nueva situación actual; la anterior pasa al historial. */
   async agregarSituacion(id_egresado: number, dto: SituacionLaboralDto, autor: UsuarioToken) {
     await this.existeOFalla(id_egresado);
     this.validarFechas(dto.fecha_inicio, dto.fecha_termino);
@@ -475,11 +449,6 @@ export class EgresadosService {
     });
   }
 
-  // -------------------------------------------------------------------
-  //  Permisos
-  // -------------------------------------------------------------------
-
-  /** Un egresado solo puede ver o editar sus propios datos. */
   verificarAcceso(usuario: UsuarioToken, id_egresado: number) {
     if (usuario.rol === RolCuenta.EGRESADO && usuario.id_egresado !== id_egresado) {
       throw new ForbiddenException('Solo puedes acceder a tus propios datos');
@@ -492,10 +461,6 @@ export class EgresadosService {
     }
     return usuario.id_egresado;
   }
-
-  // -------------------------------------------------------------------
-  //  Auxiliares
-  // -------------------------------------------------------------------
 
   private async existeOFalla(id_egresado: number) {
     const egresado = await this.prisma.egresado.findUnique({ where: { id_egresado } });
@@ -532,7 +497,6 @@ export class EgresadosService {
     });
   }
 
-  /** Si nadie viene marcado como principal, el primero lo es. Solo uno queda principal. */
   private marcarPrincipal<T extends { es_principal?: boolean }>(items: T[]): T[] {
     const indice = Math.max(0, items.findIndex((i) => i.es_principal));
     return items.map((item, i) => ({ ...item, es_principal: i === indice }));

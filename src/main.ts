@@ -10,9 +10,9 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // elimina campos que no están en el DTO
-      forbidNonWhitelisted: true, // y responde 400 si los envían
-      transform: true, // convierte tipos (ej: "5" -> 5 en query params)
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 

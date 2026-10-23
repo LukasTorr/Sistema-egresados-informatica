@@ -1,5 +1,3 @@
-// Configuración de Prisma CLI (migraciones, seed, etc.).
-// Carga las variables del archivo .env antes de que Prisma las lea.
 import 'dotenv/config';
 import path from 'node:path';
 import { defineConfig } from 'prisma/config';

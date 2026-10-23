@@ -10,7 +10,6 @@ import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator';
 import { UsuarioToken } from '../../common/decorators/usuario-actual.decorator';
 
-/** Exige un token JWT válido en el header Authorization (salvo rutas @Public). */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
