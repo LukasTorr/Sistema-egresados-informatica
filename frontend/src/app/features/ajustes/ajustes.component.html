@@ -1,0 +1,52 @@
+<h1 class="titulo">Ajustes</h1>
+<p class="subtitulo">Tu cuenta y la apariencia del sistema.</p>
+
+@if (usuario(); as u) {
+  <section class="card">
+    <h2 class="card__titulo">Mi cuenta</h2>
+    <dl class="datos">
+      <div>
+        <dt>Nombre</dt>
+        <dd>{{ u.nombres }} {{ u.apellidos }}</dd>
+      </div>
+      <div>
+        <dt>Correo</dt>
+        <dd>{{ u.correo }}</dd>
+      </div>
+      <div>
+        <dt>Rol</dt>
+        <dd>{{ u.cargo ?? nombreRol() }}</dd>
+      </div>
+      @if (u.rut) {
+        <div>
+          <dt>RUT</dt>
+          <dd>{{ u.rut }}</dd>
+        </div>
+      }
+    </dl>
+    @if (esEgresado()) {
+      <a routerLink="/egresado/perfil" class="enlace">Editar mi perfil de egresado</a>
+    }
+  </section>
+}
+
+<section class="card">
+  <h2 class="card__titulo">Apariencia</h2>
+  <div class="opcion">
+    <div>
+      <p class="opcion__titulo">Modo oscuro</p>
+      <p class="opcion__texto">Se guarda en este navegador y se mantiene al volver a entrar.</p>
+    </div>
+    <button
+      type="button"
+      class="switch"
+      role="switch"
+      [attr.aria-checked]="tema.tema() === 'oscuro'"
+      [class.switch--on]="tema.tema() === 'oscuro'"
+      (click)="tema.alternar()"
+      aria-label="Modo oscuro"
+    >
+      <span class="switch__bola"></span>
+    </button>
+  </div>
+</section>

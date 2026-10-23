@@ -32,12 +32,12 @@ import { API_URL } from '../../../core/api';
       .titulo {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 0;
       }
       .subtitulo {
         font-size: 0.9rem;
-        color: #5b6577;
+        color: var(--p-muted);
         margin: 4px 0 22px;
       }
       .metricas {
@@ -47,30 +47,30 @@ import { API_URL } from '../../../core/api';
         margin-bottom: 16px;
       }
       .card {
-        background: #fff;
-        border: 1px solid #e3e6ec;
+        background: var(--p-surface);
+        border: 1px solid var(--p-border);
         border-radius: 12px;
         padding: 20px;
       }
       .card__label {
         font-size: 0.85rem;
-        color: #5b6577;
+        color: var(--p-muted);
         margin: 0;
       }
       .card__valor {
         font-size: 2rem;
         font-weight: 800;
-        color: #14223b;
+        color: var(--p-ink);
         margin: 6px 0 4px;
       }
       .card__detalle {
         font-size: 0.78rem;
-        color: #1f8a52;
+        color: var(--p-ok);
         margin: 0;
       }
       .aviso {
         font-size: 0.88rem;
-        color: #5b6577;
+        color: var(--p-muted);
       }
       @media (max-width: 900px) {
         .metricas {
