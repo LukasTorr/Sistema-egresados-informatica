@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
+import { mensajeError } from '../../../core/api';
 import { AuthService } from '../../../core/services/auth.service';
-
-type RolLogin = 'secretaria' | 'egresado' | 'jefe_carrera';
 
 @Component({
   selector: 'app-login',
@@ -16,31 +15,23 @@ export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly roles: { valor: RolLogin; etiqueta: string }[] = [
-    { valor: 'secretaria', etiqueta: 'Secretaría' },
-    { valor: 'egresado', etiqueta: 'Egresado' },
-    { valor: 'jefe_carrera', etiqueta: 'Jefatura' },
-  ];
-
-  readonly rolSeleccionado = signal<RolLogin | null>(null);
   readonly error = signal<string | null>(null);
+  readonly ingresando = signal(false);
 
-  seleccionarRol(rol: RolLogin): void {
-    this.rolSeleccionado.set(rol);
+  ingresar(correo: string, clave: string): void {
     this.error.set(null);
-  }
+    this.ingresando.set(true);
 
-  ingresar(): void {
-    const rol = this.rolSeleccionado();
-
-    if (!rol) {
-      this.error.set('Selecciona un rol para ingresar.');
-      return;
-    }
-
-    // Prototipo: el rol elegido define la cuenta. Más adelante aquí se validan las credenciales reales.
-    const usuario = this.auth.loginDemo(rol);
-    this.auth.usuarioActual.set(usuario);
-    this.router.navigateByUrl(this.auth.rutaInicio(usuario.rol));
+    this.auth.login({ correo, clave }).subscribe({
+      next: (usuario) => {
+        this.ingresando.set(false);
+        this.auth.usuarioActual.set(usuario);
+        this.router.navigateByUrl(this.auth.rutaInicio(usuario.rol));
+      },
+      error: (err) => {
+        this.ingresando.set(false);
+        this.error.set(err instanceof Error ? err.message : mensajeError(err, 'No fue posible iniciar sesión.'));
+      },
+    });
   }
 }

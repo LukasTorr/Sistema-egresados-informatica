@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -10,6 +11,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { API_URL, mensajeError } from '../../../core/api';
 import {
   formatearRut,
   rutValidator,
@@ -35,6 +37,19 @@ interface ItemChecklist {
   texto: string;
 }
 
+const ESTADOS: Record<Situacion, string> = {
+  empleado: 'EMPLEADO',
+  independiente: 'INDEPENDIENTE',
+  buscando: 'DESEMPLEADO',
+  estudiando: 'ESTUDIANDO',
+  otro: 'OTRO',
+};
+
+interface Especialidad {
+  id_especialidad: number;
+  nombre: string;
+}
+
 const ANIO_ACTUAL = new Date().getFullYear();
 
 @Component({
@@ -48,11 +63,9 @@ export class RegistrarEgresadoComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  /** Simulación del directorio actual. Con backend, esto se consulta al servidor. */
-  private readonly correosExistentes: string[] = [
-    'c.rojas@gmail.com',
-    'diego.fuentes@gmail.com',
-  ];
+  private readonly http = inject(HttpClient);
+
+  private correosExistentes: string[] = [];
 
   readonly generos = ['Femenino', 'Masculino', 'Otro', 'Prefiero no decir'];
 
@@ -80,14 +93,8 @@ export class RegistrarEgresadoComponent {
     (_, i) => ANIO_ACTUAL - i,
   );
 
-  readonly areas = [
-    'Desarrollo de software',
-    'Infraestructura y redes',
-    'Ciencia de datos',
-    'Ciberseguridad',
-    'Gestión de proyectos TI',
-    'Otra',
-  ];
+  readonly especialidades = signal<Especialidad[]>([]);
+  readonly errorServidor = signal<string | null>(null);
 
   readonly situaciones: { valor: Situacion; etiqueta: string }[] = [
     { valor: 'empleado', etiqueta: 'Empleado/a' },
@@ -119,11 +126,17 @@ export class RegistrarEgresadoComponent {
     anioTitulacion: [''],
     area: [''],
     situacion: ['empleado' as Situacion, Validators.required],
+    contrasena: ['', Validators.minLength(8)],
     empresa: [''],
     cargo: [''],
   });
 
-  /** Se actualiza en cada cambio del formulario, para refrescar el recuadro "Antes de guardar". */
+  constructor() {
+    this.http.get<Especialidad[]>(`${API_URL}/especialidades`).subscribe({
+      next: (lista) => this.especialidades.set(lista),
+    });
+  }
+
   private readonly valores = toSignal(this.form.valueChanges, {
     initialValue: this.form.getRawValue(),
   });
@@ -152,10 +165,10 @@ export class RegistrarEgresadoComponent {
     const correoVacio = !c.correo.value.trim();
     const duplicado = !!c.correo.errors?.['duplicado'];
     const correoItem: ItemChecklist = duplicado
-      ? { estado: 'error', texto: 'Correo duplicado en el directorio' }
+      ? { estado: 'error', texto: 'Correo ya registrado' }
       : correoVacio
         ? { estado: 'pending', texto: 'Correo pendiente' }
-        : { estado: 'ok', texto: 'Correo sin duplicados en el directorio' };
+        : { estado: 'ok', texto: 'Correo ingresado' };
 
     const telefonoItem: ItemChecklist = c.telefono.value.trim()
       ? { estado: 'ok', texto: 'Teléfono ingresado' }
@@ -228,16 +241,46 @@ export class RegistrarEgresadoComponent {
     this.intentoFallido.set(false);
     this.guardando.set(true);
 
-    const correo = this.form.controls.correo.value.trim().toLowerCase();
+    this.errorServidor.set(null);
+    const v = this.form.getRawValue();
+    const correo = v.correo.trim().toLowerCase();
+    const [paterno, ...resto] = v.apellidos.trim().split(/\s+/);
+    const conEmpresa = this.muestraEmpresa;
 
-    // Simulación de guardado. Con backend, aquí va la llamada HTTP.
-    setTimeout(() => {
-      this.correosExistentes.push(correo);
-      this.guardando.set(false);
-      this.mensajeOk.set(
-        `Egresado registrado. Se envió un correo de activación a ${correo}.`,
-      );
-      this.form.reset();
-    }, 600);
+    const body = {
+      rut: v.rut,
+      nombres: v.nombres.trim(),
+      apellido_paterno: paterno,
+      apellido_materno: resto.join(' ') || undefined,
+      id_especialidad: v.area ? Number(v.area) : undefined,
+      ciudad_residencia: v.region || undefined,
+      anio_ingreso: Number(v.anioIngreso),
+      anio_egreso: Number(v.anioEgreso),
+      correos: [{ correo, tipo: 'PERSONAL', es_principal: true }],
+      telefonos: [{ telefono: v.telefono.replace(/[^+0-9 ]/g, '').trim(), tipo: 'MOVIL', es_principal: true }],
+      situacion_laboral: {
+        estado_laboral: ESTADOS[v.situacion],
+        empresa: conEmpresa ? v.empresa || undefined : undefined,
+        cargo: conEmpresa ? v.cargo || undefined : undefined,
+      },
+      contrasena_inicial: v.contrasena || undefined,
+    };
+
+    this.http.post(`${API_URL}/egresados`, body).subscribe({
+      next: () => {
+        this.correosExistentes.push(correo);
+        this.guardando.set(false);
+        this.mensajeOk.set(
+          v.contrasena
+            ? `Egresado registrado. Puede iniciar sesión con ${correo}.`
+            : 'Egresado registrado.',
+        );
+        this.form.reset();
+      },
+      error: (err) => {
+        this.guardando.set(false);
+        this.errorServidor.set(mensajeError(err, 'No fue posible registrar al egresado.'));
+      },
+    });
   }
 }

@@ -1,37 +1,74 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
-import { Observable, delay, of, throwError } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Observable, map, switchMap, throwError } from 'rxjs';
+
+import { API_URL } from '../api';
 import {
   CredencialesLogin,
-  PerfilEditable,
   RegistroUsuario,
+  RolCuenta,
   RolUsuario,
   UsuarioAutenticado,
 } from '../models/usuario.model';
 
 const CLAVE_STORAGE = 'sse_usuario';
 
+const CARGOS: Record<string, string> = {
+  JEFE_CARRERA: 'Jefatura de Carrera',
+  SECRETARIA: 'Secretaría DICI',
+  COORDINADOR: 'Coordinación',
+  DOCENTE: 'Docente',
+  OTRO: 'Funcionario DICI',
+};
+
+interface RespuestaLogin {
+  access_token: string;
+  usuario: {
+    id_cuenta: number;
+    correo: string;
+    rol: RolCuenta;
+    id_egresado?: number;
+    id_funcionario?: number;
+  };
+}
+
+interface RespuestaPerfil {
+  id_cuenta: number;
+  correo: string;
+  rol: RolCuenta;
+  funcionario: {
+    nombres: string;
+    apellido_paterno: string;
+    apellido_materno: string | null;
+    cargo: string;
+  } | null;
+  egresado: {
+    id_egresado: number;
+    rut: string;
+    nombres: string;
+    apellido_paterno: string;
+  } | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+
   readonly usuarioActual = signal<UsuarioAutenticado | null>(null);
 
-  /** Secretaría y Jefatura de carrera tienen permisos de administración. */
   readonly esAdmin = computed(() => {
     const rol = this.usuarioActual()?.rol;
     return rol === 'secretaria' || rol === 'jefe_carrera';
   });
 
   constructor() {
-    // Recupera la sesión si se recarga la página.
     try {
       const guardado = sessionStorage.getItem(CLAVE_STORAGE);
       if (guardado) {
         this.usuarioActual.set(JSON.parse(guardado) as UsuarioAutenticado);
       }
-    } catch {
-      /* sin almacenamiento disponible */
-    }
+    } catch {}
 
-    // Guarda la sesión cada vez que cambia el usuario.
     effect(() => {
       const u = this.usuarioActual();
       try {
@@ -40,13 +77,10 @@ export class AuthService {
         } else {
           sessionStorage.removeItem(CLAVE_STORAGE);
         }
-      } catch {
-        /* sin almacenamiento disponible */
-      }
+      } catch {}
     });
   }
 
-  /** Ruta de inicio que le corresponde a cada rol. */
   rutaInicio(rol: RolUsuario): string {
     switch (rol) {
       case 'secretaria':
@@ -59,98 +93,62 @@ export class AuthService {
   }
 
   login(credenciales: CredencialesLogin): Observable<UsuarioAutenticado> {
-    if (!credenciales.rut || !credenciales.clave) {
-      return throwError(() => new Error('Rut y clave son obligatorios.'));
+    if (!credenciales.correo || !credenciales.clave) {
+      return throwError(() => new Error('Correo y contraseña son obligatorios.'));
     }
 
-    const usuario: UsuarioAutenticado = {
-      id: 'demo-1',
-      nombres: 'Egresado',
-      apellidos: 'Demo',
-      rut: credenciales.rut,
-      correo: 'demo@academicos.uta.cl',
-      rol: 'egresado',
-      telefono: '',
-      empresa: '',
-      cargo: '',
-      rangoSueldo: '',
-    };
-
-    return of(usuario).pipe(delay(600));
+    return this.http
+      .post<RespuestaLogin>(`${API_URL}/auth/login`, {
+        correo: credenciales.correo.trim(),
+        contrasena: credenciales.clave,
+      })
+      .pipe(
+        switchMap((res) =>
+          this.http
+            .get<RespuestaPerfil>(`${API_URL}/auth/perfil`, {
+              headers: new HttpHeaders({ Authorization: `Bearer ${res.access_token}` }),
+            })
+            .pipe(map((perfil) => this.armarUsuario(res, perfil))),
+        ),
+      );
   }
 
-  registrar(datos: RegistroUsuario): Observable<UsuarioAutenticado> {
-    if (datos.clave !== datos.claveConfirmacion) {
-      return throwError(() => new Error('Las claves no coinciden.'));
-    }
-
-    // Todo usuario que se registra por su cuenta es un egresado (rol común).
-    const usuario: UsuarioAutenticado = {
-      id: 'demo-nuevo',
-      nombres: datos.nombres,
-      apellidos: datos.apellidos,
-      rut: datos.rut,
-      correo: datos.correo,
-      rol: 'egresado',
-      telefono: datos.telefono ?? '',
-      empresa: '',
-      cargo: '',
-      rangoSueldo: '',
-    };
-
-    return of(usuario).pipe(delay(600));
-  }
-
-  actualizarPerfil(datos: PerfilEditable): Observable<UsuarioAutenticado> {
-    const actual = this.usuarioActual();
-    if (!actual) {
-      return throwError(() => new Error('No hay sesión activa.'));
-    }
-
-    const actualizado: UsuarioAutenticado = { ...actual, ...datos };
-    return of(actualizado).pipe(delay(500));
-  }
-
-  /** Acceso de demostración del prototipo (sin validar credenciales). */
-  loginDemo(
-    rol: 'secretaria' | 'egresado' | 'jefe_carrera',
-  ): UsuarioAutenticado {
-    const demos: Record<
-      'secretaria' | 'egresado' | 'jefe_carrera',
-      UsuarioAutenticado
-    > = {
-      secretaria: {
-        id: 'demo-sec',
-        nombres: 'María',
-        apellidos: 'Soto',
-        rut: '12.345.678-5',
-        correo: 'msoto@uta.cl',
-        rol: 'secretaria',
-        cargo: 'Secretaría DICI',
-      },
-      egresado: {
-        id: 'demo-egr',
-        nombres: 'Camila',
-        apellidos: 'Rojas',
-        rut: '19.876.543-2',
-        correo: 'c.rojas@gmail.com',
-        rol: 'egresado',
-        cargo: 'Egresada · Cohorte 2021',
-      },
-      jefe_carrera: {
-        id: 'demo-jef',
-        nombres: 'Jorge',
-        apellidos: 'Pérez',
-        rut: '11.222.333-9',
-        correo: 'jperez@uta.cl',
-        rol: 'jefe_carrera',
-        cargo: 'Jefatura de Carrera',
-      },
-    };
-    return demos[rol];
+  registrar(_datos: RegistroUsuario): Observable<UsuarioAutenticado> {
+    return throwError(
+      () =>
+        new Error(
+          'Por ahora la cuenta de egresado la crea la Secretaría al registrarte. Pídele tus datos de acceso.',
+        ),
+    );
   }
 
   cerrarSesion(): void {
     this.usuarioActual.set(null);
+  }
+
+  private armarUsuario(res: RespuestaLogin, perfil: RespuestaPerfil): UsuarioAutenticado {
+    const { usuario } = res;
+    const f = perfil.funcionario;
+    const e = perfil.egresado;
+
+    let rol: RolUsuario = 'egresado';
+    if (usuario.rol === 'ADMINISTRADOR') rol = 'secretaria';
+    else if (usuario.rol === 'FUNCIONARIO') {
+      rol = f?.cargo === 'JEFE_CARRERA' ? 'jefe_carrera' : 'secretaria';
+    }
+
+    return {
+      id: String(usuario.id_cuenta),
+      nombres: f?.nombres ?? e?.nombres ?? usuario.correo,
+      apellidos: f ? [f.apellido_paterno, f.apellido_materno].filter(Boolean).join(' ') : e?.apellido_paterno ?? '',
+      rut: e?.rut ?? '',
+      correo: usuario.correo,
+      rol,
+      rolCuenta: usuario.rol,
+      token: res.access_token,
+      idEgresado: usuario.id_egresado,
+      idFuncionario: usuario.id_funcionario,
+      cargo: f ? CARGOS[f.cargo] ?? f.cargo : undefined,
+    };
   }
 }

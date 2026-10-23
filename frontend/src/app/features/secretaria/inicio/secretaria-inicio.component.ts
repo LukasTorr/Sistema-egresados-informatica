@@ -1,4 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, signal } from '@angular/core';
+import { forkJoin } from 'rxjs';
+
+import { API_URL } from '../../../core/api';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -9,71 +13,51 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class SecretariaInicioComponent {
   readonly auth = inject(AuthService);
+  private readonly http = inject(HttpClient);
 
-  readonly metricas = [
-    {
-      titulo: 'Egresados registrados',
-      valor: '1.248',
-      detalle: '+36 este mes',
-      tono: 'ok',
-    },
-    {
-      titulo: 'Perfiles completos',
-      valor: '812',
-      detalle: '65% del directorio',
-      tono: 'ok',
-    },
-    {
-      titulo: 'Perfiles desactualizados',
-      valor: '436',
-      detalle: 'Más de 12 meses sin actualizar',
-      tono: 'warn',
-    },
+  readonly metricas = signal([
+    { titulo: 'Egresados registrados', valor: '…', detalle: 'En el directorio', tono: 'ok' },
+    { titulo: 'Perfiles completos', valor: '…', detalle: '', tono: 'ok' },
+    { titulo: 'Perfiles incompletos', valor: '…', detalle: 'Faltan datos por completar', tono: 'warn' },
     {
       titulo: 'Actividades del semestre',
       valor: '9',
       detalle: '3 próximas · 2 con encuesta pendiente',
       tono: 'info',
     },
-  ];
+  ]);
 
-  readonly desactualizados = [
-    {
-      nombre: 'Diego Fuentes Mamani',
-      cohorte: '2018',
-      ultima: '14/03/2024',
-      estado: 'Desactualizado',
-      tono: 'warn',
-    },
-    {
-      nombre: 'Valentina Choque Ríos',
-      cohorte: '2019',
-      ultima: '02/08/2024',
-      estado: 'Desactualizado',
-      tono: 'warn',
-    },
-    {
-      nombre: 'Matías Gutiérrez López',
-      cohorte: '2016',
-      ultima: '—',
-      estado: 'Sin datos laborales',
-      tono: 'danger',
-    },
-    {
-      nombre: 'Fernanda Quispe Araya',
-      cohorte: '2020',
-      ultima: '21/01/2025',
-      estado: 'Desactualizado',
-      tono: 'warn',
-    },
-    {
-      nombre: 'Ignacio Vargas Tapia',
-      cohorte: '2017',
-      ultima: '09/11/2024',
-      estado: 'Desactualizado',
-      tono: 'warn',
-    },
-  ];
+  readonly desactualizados = signal<
+    { nombre: string; cohorte: string; ultima: string; estado: string; tono: string }[]
+  >([]);
+
+  constructor() {
+    const contar = (estado?: string) =>
+      this.http.get<{ total: number; datos: any[] }>(`${API_URL}/egresados`, {
+        params: estado ? { estado_perfil: estado, por_pagina: 5 } : { por_pagina: 1 },
+      });
+
+    forkJoin([contar(), contar('ACTIVO'), contar('INCOMPLETO')]).subscribe({
+      next: ([todos, activos, incompletos]) => {
+        const pct = todos.total ? Math.round((activos.total / todos.total) * 100) : 0;
+        this.metricas.update((m) => [
+          { ...m[0], valor: todos.total.toLocaleString('es-CL') },
+          { ...m[1], valor: activos.total.toLocaleString('es-CL'), detalle: `${pct}% del directorio` },
+          { ...m[2], valor: incompletos.total.toLocaleString('es-CL') },
+          m[3],
+        ]);
+        this.desactualizados.set(
+          incompletos.datos.map((e) => ({
+            nombre: [e.nombres, e.apellido_paterno, e.apellido_materno].filter(Boolean).join(' '),
+            cohorte: e.anio_egreso ? String(e.anio_egreso) : '—',
+            ultima: new Date(e.fecha_actualizacion).toLocaleDateString('es-CL'),
+            estado: e.situaciones?.length ? 'Perfil incompleto' : 'Sin datos laborales',
+            tono: e.situaciones?.length ? 'warn' : 'danger',
+          })),
+        );
+      },
+    });
+  }
 
   readonly actividades = [
     {

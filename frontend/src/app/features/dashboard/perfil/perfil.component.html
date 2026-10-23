@@ -1,0 +1,105 @@
+<div class="head">
+  <h1 class="head__title">Mi perfil</h1>
+  <p class="head__subtitle">Mantén tus datos de contacto y tu situación laboral al día.</p>
+</div>
+
+@if (mensajeOk()) {
+  <div class="alert alert--ok" role="status">{{ mensajeOk() }}</div>
+}
+@if (error()) {
+  <div class="alert alert--error" role="alert">{{ error() }}</div>
+}
+
+@if (cargando()) {
+  <p>Cargando perfil...</p>
+}
+@if (egresado(); as e) {
+  <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+    <section class="card">
+      <h2 class="card__title">Datos personales</h2>
+      <div class="row row--2">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" [value]="e.nombres + ' ' + e.apellido_paterno" disabled />
+        </div>
+        <div class="field">
+          <label for="apellido_materno">Apellido materno</label>
+          <input id="apellido_materno" type="text" formControlName="apellido_materno" />
+        </div>
+      </div>
+      <div class="row row--2">
+        <div class="field">
+          <label>RUT</label>
+          <input type="text" [value]="e.rut" disabled />
+        </div>
+        <div class="field">
+          <label>Especialidad</label>
+          <input type="text" [value]="e.especialidad?.nombre ?? '—'" disabled />
+        </div>
+      </div>
+      <div class="row row--2">
+        <div class="field">
+          <label>Años de ingreso y egreso</label>
+          <input type="text" [value]="(e.anio_ingreso ?? '—') + ' / ' + (e.anio_egreso ?? '—')" disabled />
+        </div>
+        <div class="field">
+          <label for="ciudad_residencia">Ciudad de residencia</label>
+          <input id="ciudad_residencia" type="text" formControlName="ciudad_residencia" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Contacto</h2>
+      <div class="row row--2">
+        <div class="field">
+          <label>Correo</label>
+          <input type="text" [value]="correoPrincipal" disabled />
+        </div>
+        <div class="field">
+          <label for="telefono">Teléfono</label>
+          <input id="telefono" type="tel" formControlName="telefono" placeholder="+56912345678" />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">Situación laboral</h2>
+      <div class="row row--2">
+        <div class="field">
+          <label for="estado_laboral">Estado</label>
+          <select id="estado_laboral" formControlName="estado_laboral">
+            @for (s of estados; track s.valor) {
+              <option [value]="s.valor">{{ s.etiqueta }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="rango_sueldo">Rango de sueldo</label>
+          <select id="rango_sueldo" formControlName="rango_sueldo">
+            <option value="">Seleccionar</option>
+            @for (r of rangos; track r.valor) {
+              <option [value]="r.valor">{{ r.etiqueta }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="row row--2">
+        <div class="field">
+          <label for="empresa">Empresa</label>
+          <input id="empresa" type="text" formControlName="empresa" />
+        </div>
+        <div class="field">
+          <label for="cargo">Cargo</label>
+          <input id="cargo" type="text" formControlName="cargo" />
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="submit" class="btn btn--primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </form>
+}

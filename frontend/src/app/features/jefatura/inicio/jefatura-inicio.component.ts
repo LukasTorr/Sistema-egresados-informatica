@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, signal } from '@angular/core';
+
+import { API_URL } from '../../../core/api';
 
 @Component({
   selector: 'app-jefatura-inicio',
@@ -10,7 +13,7 @@ import { Component } from '@angular/core';
     </p>
 
     <section class="metricas">
-      @for (m of metricas; track m.titulo) {
+      @for (m of metricas(); track m.titulo) {
         <article class="card">
           <p class="card__label">{{ m.titulo }}</p>
           <p class="card__valor">{{ m.valor }}</p>
@@ -78,10 +81,12 @@ import { Component } from '@angular/core';
   ],
 })
 export class JefaturaInicioComponent {
-  readonly metricas = [
+  private readonly http = inject(HttpClient);
+
+  readonly metricas = signal([
     {
       titulo: 'Egresados en directorio',
-      valor: '1.248',
+      valor: '…',
       detalle: '100% de la BD',
     },
     { titulo: 'Empleabilidad', valor: '87%', detalle: '+3 pp vs 2025' },
@@ -97,5 +102,13 @@ export class JefaturaInicioComponent {
       valor: '64%',
       detalle: 'de los encuestados',
     },
-  ];
+  ]);
+
+  constructor() {
+    this.http
+      .get<{ total: number }>(`${API_URL}/egresados`, { params: { por_pagina: 1 } })
+      .subscribe((res) =>
+        this.metricas.update((m) => [{ ...m[0], valor: res.total.toLocaleString('es-CL') }, ...m.slice(1)]),
+      );
+  }
 }

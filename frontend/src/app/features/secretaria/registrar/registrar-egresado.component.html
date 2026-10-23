@@ -6,6 +6,9 @@
 @if (mensajeOk()) {
   <div class="alert alert--ok" role="status">{{ mensajeOk() }}</div>
 }
+@if (errorServidor()) {
+  <div class="alert alert--error" role="alert">{{ errorServidor() }}</div>
+}
 @if (intentoFallido()) {
   <div class="alert alert--error" role="alert">Revisa los campos marcados en rojo antes de guardar.</div>
 }
@@ -91,6 +94,14 @@
           <input id="linkedin" type="text" formControlName="linkedin" placeholder="linkedin.com/in/..." />
         </div>
       </div>
+
+      <div class="row row--2">
+        <div class="field" [class.field--error]="form.controls.contrasena.touched && form.controls.contrasena.invalid">
+          <label for="contrasena">Contraseña inicial (opcional)</label>
+          <input id="contrasena" type="password" formControlName="contrasena" autocomplete="new-password" />
+          <span class="field__hint">Si la ingresas, el egresado podrá iniciar sesión con su correo. Mínimo 8 caracteres.</span>
+        </div>
+      </div>
     </section>
 
     <!-- Datos académicos -->
@@ -129,8 +140,8 @@
           <label for="area">Área / especialidad</label>
           <select id="area" formControlName="area">
             <option value="">Seleccionar</option>
-            @for (a of areas; track a) {
-              <option [value]="a">{{ a }}</option>
+            @for (e of especialidades(); track e.id_especialidad) {
+              <option [value]="e.id_especialidad">{{ e.nombre }}</option>
             }
           </select>
         </div>
