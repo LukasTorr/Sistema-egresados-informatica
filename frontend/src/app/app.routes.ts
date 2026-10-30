@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { rolGuard } from './core/guards/rol.guard';
+import { adminGuard, rolGuard } from './core/guards/rol.guard';
 
 const layout = () =>
   import('./features/layout/panel-layout.component').then(
@@ -61,6 +61,13 @@ export const routes: Routes = [
             (m) => m.ComunicacionesComponent,
           ),
         title: 'Comunicaciones | Secretaría ICCI',
+      },
+      {
+        path: 'usuarios',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/secretaria/usuarios/usuarios.component').then((m) => m.UsuariosComponent),
+        title: 'Usuarios | Secretaría ICCI',
       },
       ajustes('Secretaría'),
       { path: '**', redirectTo: '' },

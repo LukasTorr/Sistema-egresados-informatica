@@ -1,0 +1,110 @@
+<header class="head">
+  <h1 class="head__title">Usuarios</h1>
+  <p class="head__subtitle">Cuentas del personal: secretaría, jefatura y administradores</p>
+</header>
+
+@if (mensajeOk()) {
+  <div class="alert alert--ok" role="status">{{ mensajeOk() }}</div>
+}
+@if (error()) {
+  <div class="alert alert--error" role="alert">{{ error() }}</div>
+}
+
+<form [formGroup]="form" (ngSubmit)="crear()" novalidate>
+  <section class="card">
+    <h2 class="card__title">Nueva cuenta</h2>
+
+    <div class="row row--3">
+      <div class="field" [class.field--error]="invalido('nombres')">
+        <label for="nombres">Nombres *</label>
+        <input id="nombres" type="text" formControlName="nombres" />
+        @if (invalido('nombres')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+      </div>
+      <div class="field" [class.field--error]="invalido('apellido_paterno')">
+        <label for="apellido_paterno">Apellido paterno *</label>
+        <input id="apellido_paterno" type="text" formControlName="apellido_paterno" />
+        @if (invalido('apellido_paterno')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+      </div>
+      <div class="field">
+        <label for="apellido_materno">Apellido materno</label>
+        <input id="apellido_materno" type="text" formControlName="apellido_materno" />
+      </div>
+    </div>
+
+    <div class="row row--3">
+      <div class="field" [class.field--error]="invalido('correo')">
+        <label for="correo">Correo *</label>
+        <input id="correo" type="email" formControlName="correo" placeholder="nombre@uta.cl" />
+        @if (invalido('correo')) { <span class="field__hint field__hint--error">Ingresa un correo válido</span> }
+      </div>
+      <div class="field">
+        <label for="cargo">Cargo *</label>
+        <select id="cargo" formControlName="cargo">
+          @for (c of cargos; track c.valor) {
+            <option [value]="c.valor">{{ c.etiqueta }}</option>
+          }
+        </select>
+      </div>
+      <div class="field" [class.field--error]="invalido('contrasena')">
+        <label for="contrasena">Contraseña inicial *</label>
+        <input id="contrasena" type="text" formControlName="contrasena" autocomplete="off" />
+        <span class="field__hint" [class.field__hint--error]="invalido('contrasena')">
+          Mínimo 8 caracteres. La persona deberá cambiarla al entrar.
+        </span>
+      </div>
+    </div>
+
+    <div class="pie">
+      <label class="check-admin">
+        <input type="checkbox" formControlName="esAdministrador" />
+        Administrador (puede crear y desactivar cuentas)
+      </label>
+      <button type="submit" class="btn btn--primary" [disabled]="enviando()">
+        {{ enviando() ? 'Creando…' : 'Crear cuenta' }}
+      </button>
+    </div>
+  </section>
+</form>
+
+<section class="card">
+  <h2 class="card__title">Cuentas del personal</h2>
+  <div class="tabla-wrap">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Cargo</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of cuentas(); track c.id_cuenta) {
+          <tr>
+            <td>{{ nombre(c) }}</td>
+            <td>{{ c.correo }}</td>
+            <td>{{ cargo(c) }}</td>
+            <td>{{ c.rol === 'ADMINISTRADOR' ? 'Administrador' : 'Funcionario' }}</td>
+            <td>
+              <span class="estado" [class.estado--off]="!c.activo">{{ c.activo ? 'Activa' : 'Desactivada' }}</span>
+              @if (c.debe_cambiar_contrasena) {
+                <span class="estado estado--pendiente">Contraseña inicial</span>
+              }
+            </td>
+            <td class="tabla__accion">
+              @if (!esPropia(c)) {
+                <button type="button" class="btn-tabla" (click)="cambiarEstado(c)">
+                  {{ c.activo ? 'Desactivar' : 'Activar' }}
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="tabla__vacia">No hay cuentas del personal.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

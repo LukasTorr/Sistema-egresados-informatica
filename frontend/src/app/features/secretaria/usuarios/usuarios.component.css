@@ -1,0 +1,95 @@
+.card + .card,
+form + .card {
+  margin-top: 16px;
+}
+
+.pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.pie .btn {
+  padding: 0 18px;
+}
+
+.check-admin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--p-ink);
+  cursor: pointer;
+}
+
+.tabla-wrap {
+  overflow-x: auto;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.tabla th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--p-muted);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--p-border);
+}
+
+.tabla td {
+  padding: 10px;
+  color: var(--p-ink);
+  border-bottom: 1px solid var(--p-border);
+  white-space: nowrap;
+}
+
+.tabla__accion {
+  text-align: right;
+}
+
+.tabla__vacia {
+  text-align: center;
+  color: var(--p-muted);
+}
+
+.estado {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-right: 4px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--p-ok-bg);
+  color: var(--p-ok);
+}
+
+.estado--off {
+  background: var(--p-danger-bg);
+  color: var(--p-danger);
+}
+
+.estado--pendiente {
+  background: var(--p-warn-bg);
+  color: var(--p-warn);
+}
+
+.btn-tabla {
+  height: 28px;
+  padding: 0 12px;
+  border: 1.5px solid var(--p-border-strong);
+  border-radius: 6px;
+  background: var(--p-surface);
+  color: var(--p-ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}

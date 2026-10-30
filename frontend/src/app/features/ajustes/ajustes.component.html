@@ -30,6 +30,40 @@
   </section>
 }
 
+<section class="card" id="contrasena">
+  <h2 class="card__titulo">Cambiar contraseña</h2>
+
+  @if (claveOk()) {
+    <div class="alerta alerta--ok" role="status">{{ claveOk() }}</div>
+  }
+  @if (claveError()) {
+    <div class="alerta alerta--error" role="alert">{{ claveError() }}</div>
+  }
+
+  <form class="clave" [formGroup]="formClave" (ngSubmit)="cambiarClave()" novalidate>
+    <div class="campo" [class.campo--error]="claveInvalida('actual')">
+      <label for="clave-actual">Contraseña actual</label>
+      <input id="clave-actual" type="password" formControlName="actual" autocomplete="current-password" />
+      @if (claveInvalida('actual')) { <span class="campo__hint">Ingresa tu contraseña actual</span> }
+    </div>
+    <div class="campo" [class.campo--error]="claveInvalida('nueva')">
+      <label for="clave-nueva">Nueva contraseña</label>
+      <input id="clave-nueva" type="password" formControlName="nueva" autocomplete="new-password" />
+      @if (claveInvalida('nueva')) { <span class="campo__hint">Mínimo 8 caracteres</span> }
+    </div>
+    <div class="campo" [class.campo--error]="formClave.hasError('noCoinciden') && formClave.controls.confirmacion.touched">
+      <label for="clave-confirmacion">Repite la nueva contraseña</label>
+      <input id="clave-confirmacion" type="password" formControlName="confirmacion" autocomplete="new-password" />
+      @if (formClave.hasError('noCoinciden') && formClave.controls.confirmacion.touched) {
+        <span class="campo__hint">Las contraseñas no coinciden</span>
+      }
+    </div>
+    <button type="submit" class="boton" [disabled]="guardandoClave()">
+      {{ guardandoClave() ? 'Guardando…' : 'Cambiar contraseña' }}
+    </button>
+  </form>
+</section>
+
 <section class="card">
   <h2 class="card__titulo">Apariencia</h2>
   <div class="opcion">

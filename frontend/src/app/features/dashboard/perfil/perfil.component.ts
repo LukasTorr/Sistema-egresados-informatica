@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 
 import { API_URL, mensajeError } from '../../../core/api';
@@ -37,9 +38,9 @@ interface Egresado {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './perfil.component.html',
-  styleUrl: '../../secretaria/registrar/registrar-egresado.component.css',
+  styleUrls: ['../../secretaria/registrar/registrar-egresado.component.css', './perfil.component.css'],
 })
 export class PerfilComponent {
   private readonly fb = inject(FormBuilder);
