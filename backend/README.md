@@ -173,11 +173,10 @@ Campos marcados con `??` en el diagrama y cómo se resolvieron (se pueden cambia
 | `egresado_telefono.tipo???` | enum `MOVIL`, `FIJO`, `LABORAL`. |
 | `oferta_laboral.tipo??` | enum `EMPLEO`, `PRACTICA`, `PART_TIME`, `FREELANCE`. |
 | `oferta_laboral.origen???` | enum `INTERNA` (la publica el departamento), `EMPRESA` (la envía una empresa), `EXTERNA` (portal externo). |
-| `informe_cierre.asistentes_parciales???` | Se mantiene como `int`: egresados que asistieron a algunas sesiones pero no a todas. |
 
 Otros enums que el diagrama dejaba abiertos: `cargo` (`JEFE_CARRERA`, `SECRETARIA`, `COORDINADOR`, `DOCENTE`, `OTRO`),
 `rol_funcionario` (`ADMINISTRADOR`, `GESTOR`, `LECTOR`), `estado_perfil` (`INCOMPLETO`, `ACTIVO`, `INACTIVO`),
-`estado_laboral`, `rango_sueldo`, `actividad.tipo`, `encuesta.tipo` y `pregunta.tipo`.
+`estado_laboral` y `rango_sueldo`.
 
 Cambios y agregados respecto al diagrama:
 
@@ -188,15 +187,15 @@ Cambios y agregados respecto al diagrama:
 - `egresado`: se agregaron `fecha_creacion` y `fecha_actualizacion`.
 - `apellido_materno`, `ciudad_residencia`, años, `empresa`, `cargo` y similares quedaron **opcionales**
   para que la carga masiva no falle con datos históricos incompletos.
-- Se agregaron restricciones únicas para evitar duplicados: RUT, correo por egresado, teléfono por egresado,
-  inscripción por sesión y respuesta por pregunta.
+- Se agregaron restricciones únicas para evitar duplicados: RUT, correo por egresado y teléfono por egresado.
 - `movimiento_perfil` se usa como bitácora: cada cambio hecho en HU-02 queda registrado con el valor anterior,
   el nuevo y quién lo hizo (`GET /api/egresados/{id}/historial`).
-- Las tablas de ofertas, actividades, sesiones, encuestas e informes ya están creadas, pero sus endpoints
-  corresponden a sprints siguientes.
+- De lo que viene después solo está creada la tabla `oferta_laboral`, sin endpoints todavía. Actividades,
+  sesiones, inscripciones, encuestas, reportes e informes de cierre se agregarán en su sprint.
 
 ## Pendiente para próximos sprints
 
 - Envío real por **correo** de las comunicaciones (hoy se publican en el portal; el campo `canal` ya existe).
 - Verificación de correo y recuperación de contraseña.
-- Endpoints de ofertas laborales, actividades, encuestas y reportes.
+- Endpoints de ofertas laborales.
+- Tablas y endpoints de actividades, sesiones, inscripciones, encuestas, reportes e informes de cierre.
