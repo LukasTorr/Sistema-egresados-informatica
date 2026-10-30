@@ -7,6 +7,8 @@ class UsuarioLoginDto {
   @ApiProperty({ enum: RolCuenta }) rol: RolCuenta;
   @ApiProperty({ required: false }) id_egresado?: number;
   @ApiProperty({ required: false }) id_funcionario?: number;
+  @ApiProperty({ description: 'true si debe cambiar la contraseña inicial antes de usar el sistema' })
+  debe_cambiar_contrasena: boolean;
 }
 
 export class LoginRespuestaDto {

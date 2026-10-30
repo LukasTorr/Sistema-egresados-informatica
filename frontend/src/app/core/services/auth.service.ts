@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Observable, map, switchMap, throwError } from 'rxjs';
+import { Observable, map, switchMap, tap, throwError } from 'rxjs';
 
 import { API_URL } from '../api';
 import {
@@ -29,6 +29,7 @@ interface RespuestaLogin {
     rol: RolCuenta;
     id_egresado?: number;
     id_funcionario?: number;
+    debe_cambiar_contrasena?: boolean;
   };
 }
 
@@ -121,6 +122,16 @@ export class AuthService {
       .pipe(switchMap(() => this.login({ correo, clave: datos.clave })));
   }
 
+  cambiarContrasena(actual: string, nueva: string): Observable<unknown> {
+    return this.http
+      .patch(`${API_URL}/auth/contrasena`, { contrasena_actual: actual, contrasena_nueva: nueva })
+      .pipe(
+        tap(() =>
+          this.usuarioActual.update((u) => (u ? { ...u, debeCambiarContrasena: false } : u)),
+        ),
+      );
+  }
+
   cerrarSesion(): void {
     this.usuarioActual.set(null);
   }
@@ -147,6 +158,7 @@ export class AuthService {
       token: res.access_token,
       idEgresado: usuario.id_egresado,
       idFuncionario: usuario.id_funcionario,
+      debeCambiarContrasena: usuario.debe_cambiar_contrasena ?? false,
       cargo: f ? CARGOS[f.cargo] ?? f.cargo : undefined,
     };
   }
