@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, rolGuard } from './core/guards/rol.guard';
+import { rolGuard } from './core/guards/rol.guard';
 
 const layout = () =>
   import('./features/layout/panel-layout.component').then(
@@ -12,6 +12,32 @@ const ajustes = (area: string) => ({
     import('./features/ajustes/ajustes.component').then((m) => m.AjustesComponent),
   title: `Ajustes | ${area} ICCI`,
 });
+
+// Páginas que comparten la Administración y la Secretaría.
+const gestionEgresados = (area: string): Routes => [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/secretaria/inicio/secretaria-inicio.component').then((m) => m.SecretariaInicioComponent),
+    title: `Inicio | ${area} ICCI`,
+  },
+  {
+    path: 'registrar',
+    loadComponent: () =>
+      import('./features/secretaria/registrar/registrar-egresado.component').then(
+        (m) => m.RegistrarEgresadoComponent,
+      ),
+    title: `Registrar egresado | ${area} ICCI`,
+  },
+  {
+    path: 'comunicaciones',
+    loadComponent: () =>
+      import('./features/secretaria/comunicaciones/comunicaciones.component').then(
+        (m) => m.ComunicacionesComponent,
+      ),
+    title: `Comunicaciones | ${area} ICCI`,
+  },
+];
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -32,46 +58,30 @@ export const routes: Routes = [
     title: 'Activar cuenta | Sistema de Egresados ICCI',
   },
 
-  // ---- Secretaría (admin) ----
+  // ---- Administración ----
+  {
+    path: 'admin',
+    canActivate: [rolGuard(['administrador'])],
+    loadComponent: layout,
+    children: [
+      ...gestionEgresados('Administración'),
+      {
+        path: 'funcionarios',
+        loadComponent: () =>
+          import('./features/secretaria/usuarios/usuarios.component').then((m) => m.UsuariosComponent),
+        title: 'Funcionarios | Administración ICCI',
+      },
+      ajustes('Administración'),
+      { path: '**', redirectTo: '' },
+    ],
+  },
+
+  // ---- Secretaría ----
   {
     path: 'secretaria',
     canActivate: [rolGuard(['secretaria'])],
     loadComponent: layout,
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./features/secretaria/inicio/secretaria-inicio.component').then(
-            (m) => m.SecretariaInicioComponent,
-          ),
-        title: 'Inicio | Secretaría ICCI',
-      },
-      {
-        path: 'registrar',
-        loadComponent: () =>
-          import('./features/secretaria/registrar/registrar-egresado.component').then(
-            (m) => m.RegistrarEgresadoComponent,
-          ),
-        title: 'Registrar egresado | Secretaría ICCI',
-      },
-      {
-        path: 'comunicaciones',
-        loadComponent: () =>
-          import('./features/secretaria/comunicaciones/comunicaciones.component').then(
-            (m) => m.ComunicacionesComponent,
-          ),
-        title: 'Comunicaciones | Secretaría ICCI',
-      },
-      {
-        path: 'usuarios',
-        canActivate: [adminGuard],
-        loadComponent: () =>
-          import('./features/secretaria/usuarios/usuarios.component').then((m) => m.UsuariosComponent),
-        title: 'Usuarios | Secretaría ICCI',
-      },
-      ajustes('Secretaría'),
-      { path: '**', redirectTo: '' },
-    ],
+    children: [...gestionEgresados('Secretaría'), ajustes('Secretaría'), { path: '**', redirectTo: '' }],
   },
 
   // ---- Jefatura de carrera (admin) ----
