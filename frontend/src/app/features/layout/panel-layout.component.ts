@@ -15,7 +15,6 @@ interface ItemMenu {
 
 interface ConfigRol {
   titulo: string;
-  etiquetaMenu: string;
   cargoPorDefecto: string;
   admin: boolean;
   items: ItemMenu[];
@@ -24,7 +23,6 @@ interface ConfigRol {
 const CONFIG: Record<string, ConfigRol> = {
   secretaria: {
     titulo: 'Secretaría',
-    etiquetaMenu: 'SECRETARÍA',
     cargoPorDefecto: 'Secretaría DICI',
     admin: true,
     items: [
@@ -40,7 +38,6 @@ const CONFIG: Record<string, ConfigRol> = {
   },
   jefe_carrera: {
     titulo: 'Jefatura',
-    etiquetaMenu: 'JEFATURA DE CARRERA',
     cargoPorDefecto: 'Jefatura de Carrera',
     admin: true,
     items: [
@@ -51,7 +48,6 @@ const CONFIG: Record<string, ConfigRol> = {
   },
   egresado: {
     titulo: 'Egresado',
-    etiquetaMenu: 'EGRESADO',
     cargoPorDefecto: 'Egresado/a ICCI',
     admin: false,
     items: [
@@ -107,6 +103,14 @@ export class PanelLayoutComponent {
   });
 
   readonly cargo = computed(() => this.usuario()?.cargo ?? this.config().cargoPorDefecto);
+
+  // Rol de la cuenta para el título del menú; un funcionario se muestra con su cargo.
+  readonly rolVisible = computed(() => {
+    const u = this.usuario();
+    if (u?.rolCuenta === 'ADMINISTRADOR') return 'Administrador';
+    if (u?.rolCuenta === 'EGRESADO') return 'Egresado';
+    return this.cargo();
+  });
 
   constructor() {
     this.notificaciones.cargar();

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { API_URL } from '../../../core/api';
@@ -8,6 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-secretaria-inicio',
   standalone: true,
+  imports: [RouterLink],
   templateUrl: './secretaria-inicio.component.html',
   styleUrl: './secretaria-inicio.component.css',
 })
