@@ -26,3 +26,11 @@ export const rolGuard = (rolesPermitidos: RolUsuario[]): CanActivateFn => {
     return router.createUrlTree([auth.rutaInicio(usuario.rol)]);
   };
 };
+
+// Solo deja pasar a cuentas con rol ADMINISTRADOR (por ejemplo, para gestionar usuarios).
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const usuario = auth.usuarioActual();
+  if (usuario?.rolCuenta === 'ADMINISTRADOR') return true;
+  return inject(Router).createUrlTree([usuario ? auth.rutaInicio(usuario.rol) : '/login']);
+};

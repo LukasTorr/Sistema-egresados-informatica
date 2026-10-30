@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CrearFuncionarioDto } from './dto/crear-funcionario.dto';
@@ -8,6 +8,7 @@ const SELECT_CUENTA = {
   correo: true,
   rol: true,
   activo: true,
+  debe_cambiar_contrasena: true,
   fecha_verificacion: true,
   fecha_creacion: true,
   funcionario: true,
@@ -28,6 +29,7 @@ export class UsuariosService {
         correo,
         rol,
         contrasena_hash: await AuthService.hashContrasena(contrasena),
+        debe_cambiar_contrasena: true,
         funcionario: { create: datosFuncionario },
       },
       select: SELECT_CUENTA,
@@ -41,7 +43,10 @@ export class UsuariosService {
     });
   }
 
-  async cambiarEstado(id_cuenta: number, activo: boolean) {
+  async cambiarEstado(id_cuenta: number, activo: boolean, id_cuenta_admin: number) {
+    if (id_cuenta === id_cuenta_admin && !activo) {
+      throw new BadRequestException('No puedes desactivar tu propia cuenta');
+    }
     const cuenta = await this.prisma.cuenta.findUnique({ where: { id_cuenta } });
     if (!cuenta) throw new NotFoundException('Cuenta no encontrada');
     return this.prisma.cuenta.update({

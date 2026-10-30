@@ -81,6 +81,13 @@ export class PanelLayoutComponent {
     return CONFIG[rol] ?? CONFIG['egresado'];
   });
 
+  readonly items = computed<ItemMenu[]>(() => {
+    const items = this.config().items;
+    return this.usuario()?.rolCuenta === 'ADMINISTRADOR' && this.usuario()?.rol === 'secretaria'
+      ? [...items, { etiqueta: 'Usuarios', ruta: '/secretaria/usuarios', exacto: false }]
+      : items;
+  });
+
   readonly seccionActual = signal('Inicio');
   readonly confirmandoCierreSesion = signal(false);
   readonly menuAbierto = signal<'notificaciones' | 'usuario' | null>(null);
@@ -141,7 +148,7 @@ export class PanelLayoutComponent {
   }
 
   private actualizarSeccion(): void {
-    const items = this.config().items;
+    const items = this.items();
     const url = this.router.url;
     const item = [...items].reverse().find((m) => url.startsWith(m.ruta));
     const fuera = url.endsWith('/ajustes') ? 'Ajustes' : null;

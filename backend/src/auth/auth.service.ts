@@ -81,7 +81,8 @@ export class AuthService {
       where: { id_cuenta: usuario.sub },
     });
     if (!(await bcrypt.compare(dto.contrasena_actual, cuenta.contrasena_hash))) {
-      throw new UnauthorizedException('La contraseña actual no es correcta');
+      // 400 y no 401: un 401 haría que el frontend cierre la sesión.
+      throw new BadRequestException('La contraseña actual no es correcta');
     }
     if (dto.contrasena_nueva === dto.contrasena_actual) {
       throw new BadRequestException('La nueva contraseña debe ser distinta de la actual');

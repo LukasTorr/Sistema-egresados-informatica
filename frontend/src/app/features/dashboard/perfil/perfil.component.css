@@ -1,0 +1,22 @@
+.head--fila {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.enlace-clave {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1.5px solid var(--p-border-strong);
+  border-radius: 8px;
+  background: var(--p-surface);
+  color: var(--p-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.enlace-clave:hover {
+  border-color: var(--p-link);
+}

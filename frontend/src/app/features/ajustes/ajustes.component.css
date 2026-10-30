@@ -110,6 +110,96 @@
   outline-offset: 2px;
 }
 
+.clave {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--p-ink);
+}
+
+.campo input {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--p-border-strong);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: var(--p-ink);
+  background: var(--p-surface);
+  min-width: 0;
+}
+
+.campo input:focus {
+  outline: 2px solid #1f4e8c;
+  border-color: var(--p-link);
+}
+
+.campo--error input {
+  border-color: var(--p-danger);
+}
+
+.campo__hint {
+  font-size: 0.72rem;
+  color: var(--p-danger);
+}
+
+.boton {
+  grid-column: 1 / -1;
+  justify-self: end;
+  height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #1f4e8c;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.boton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.alerta {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  margin-bottom: 14px;
+}
+
+.alerta--ok {
+  background: var(--p-ok-bg);
+  color: var(--p-ok);
+  border: 1px solid var(--p-ok);
+}
+
+.alerta--error {
+  background: var(--p-danger-bg);
+  color: var(--p-danger);
+  border: 1px solid var(--p-danger);
+}
+
+@media (max-width: 800px) {
+  .clave {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
   .datos {
     grid-template-columns: 1fr;

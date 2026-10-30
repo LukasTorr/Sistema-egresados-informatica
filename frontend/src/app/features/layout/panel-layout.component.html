@@ -10,7 +10,7 @@
     <p class="sidebar__section">{{ rolVisible() }}</p>
 
     <nav class="sidebar__nav">
-      @for (item of config().items; track item.ruta) {
+      @for (item of items(); track item.ruta) {
         <a
           [routerLink]="item.ruta"
           routerLinkActive="is-active"
