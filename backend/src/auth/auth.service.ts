@@ -54,6 +54,7 @@ export class AuthService {
         rol: cuenta.rol,
         id_egresado: payload.id_egresado,
         id_funcionario: payload.id_funcionario,
+        debe_cambiar_contrasena: cuenta.debe_cambiar_contrasena,
       },
     };
   }
@@ -66,6 +67,7 @@ export class AuthService {
         correo: true,
         rol: true,
         fecha_verificacion: true,
+        debe_cambiar_contrasena: true,
         funcionario: true,
         egresado: {
           select: { id_egresado: true, rut: true, nombres: true, apellido_paterno: true },
@@ -81,9 +83,15 @@ export class AuthService {
     if (!(await bcrypt.compare(dto.contrasena_actual, cuenta.contrasena_hash))) {
       throw new UnauthorizedException('La contraseña actual no es correcta');
     }
+    if (dto.contrasena_nueva === dto.contrasena_actual) {
+      throw new BadRequestException('La nueva contraseña debe ser distinta de la actual');
+    }
     await this.prisma.cuenta.update({
       where: { id_cuenta: usuario.sub },
-      data: { contrasena_hash: await AuthService.hashContrasena(dto.contrasena_nueva) },
+      data: {
+        contrasena_hash: await AuthService.hashContrasena(dto.contrasena_nueva),
+        debe_cambiar_contrasena: false,
+      },
     });
     return { mensaje: 'Contraseña actualizada' };
   }

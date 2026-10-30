@@ -106,13 +106,15 @@ enum CanalComunicacion {
 }
 
 model cuenta {
-  id_cuenta          Int       @id @default(autoincrement())
-  correo             String    @unique @db.VarChar(150)
-  contrasena_hash    String    @db.VarChar(255)
-  rol                RolCuenta
-  fecha_verificacion DateTime?
-  activo             Boolean   @default(true)
-  fecha_creacion     DateTime  @default(now())
+  id_cuenta               Int       @id @default(autoincrement())
+  correo                  String    @unique @db.VarChar(150)
+  contrasena_hash         String    @db.VarChar(255)
+  rol                     RolCuenta
+  fecha_verificacion      DateTime?
+  // true cuando la Secretaría creó la cuenta con una contraseña inicial que el egresado debe cambiar.
+  debe_cambiar_contrasena Boolean   @default(false)
+  activo                  Boolean   @default(true)
+  fecha_creacion          DateTime  @default(now())
 
   funcionario       funcionario?
   egresado          egresado?

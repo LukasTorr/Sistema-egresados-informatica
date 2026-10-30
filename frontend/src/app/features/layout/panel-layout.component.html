@@ -150,4 +150,8 @@
       </div>
     </div>
   }
+
+  @if (usuario()?.debeCambiarContrasena) {
+    <app-cambio-contrasena (salir)="confirmarCierreSesion()" />
+  }
 </div>

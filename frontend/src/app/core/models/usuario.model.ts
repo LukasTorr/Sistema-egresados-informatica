@@ -29,6 +29,7 @@ export interface UsuarioAutenticado {
   token?: string;
   idEgresado?: number;
   idFuncionario?: number;
+  debeCambiarContrasena?: boolean;
   telefono?: string;
   empresa?: string;
   cargo?: string;

@@ -6,6 +6,7 @@ import { filter } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificacionesService } from '../../core/services/notificaciones.service';
 import { TemaService } from '../../core/services/tema.service';
+import { CambioContrasenaComponent } from './cambio-contrasena.component';
 
 interface ItemMenu {
   etiqueta: string;
@@ -63,7 +64,7 @@ const CONFIG: Record<string, ConfigRol> = {
 @Component({
   selector: 'app-panel-layout',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CambioContrasenaComponent, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './panel-layout.component.html',
   styleUrl: './panel-layout.component.css',
 })
