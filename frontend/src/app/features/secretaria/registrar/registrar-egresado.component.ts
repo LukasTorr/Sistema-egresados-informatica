@@ -9,7 +9,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { API_URL, mensajeError } from '../../../core/api';
 import {
@@ -62,6 +62,7 @@ const ANIO_ACTUAL = new Date().getFullYear();
 export class RegistrarEgresadoComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly http = inject(HttpClient);
 
@@ -226,7 +227,7 @@ export class RegistrarEgresadoComponent {
   }
 
   cancelar(): void {
-    this.router.navigateByUrl('/secretaria');
+    this.router.navigate(['..'], { relativeTo: this.route });
   }
 
   guardar(): void {

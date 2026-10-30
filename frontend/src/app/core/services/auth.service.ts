@@ -1,11 +1,11 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Observable, map, switchMap, throwError } from 'rxjs';
+import { Observable, map, switchMap, tap, throwError } from 'rxjs';
 
 import { API_URL } from '../api';
 import {
+  ActivacionCuenta,
   CredencialesLogin,
-  RegistroUsuario,
   RolCuenta,
   RolUsuario,
   UsuarioAutenticado,
@@ -29,6 +29,7 @@ interface RespuestaLogin {
     rol: RolCuenta;
     id_egresado?: number;
     id_funcionario?: number;
+    debe_cambiar_contrasena?: boolean;
   };
 }
 
@@ -58,7 +59,7 @@ export class AuthService {
 
   readonly esAdmin = computed(() => {
     const rol = this.usuarioActual()?.rol;
-    return rol === 'secretaria' || rol === 'jefe_carrera';
+    return rol === 'administrador' || rol === 'secretaria' || rol === 'jefe_carrera';
   });
 
   constructor() {
@@ -83,6 +84,8 @@ export class AuthService {
 
   rutaInicio(rol: RolUsuario): string {
     switch (rol) {
+      case 'administrador':
+        return '/admin';
       case 'secretaria':
         return '/secretaria';
       case 'jefe_carrera':
@@ -113,13 +116,22 @@ export class AuthService {
       );
   }
 
-  registrar(_datos: RegistroUsuario): Observable<UsuarioAutenticado> {
-    return throwError(
-      () =>
-        new Error(
-          'Por ahora la cuenta de egresado la crea la Secretaría al registrarte. Pídele tus datos de acceso.',
+  // Activa la cuenta de un egresado ya registrado por la Secretaría y luego inicia sesión con ella.
+  activarCuenta(datos: ActivacionCuenta): Observable<UsuarioAutenticado> {
+    const correo = datos.correo.trim().toLowerCase();
+    return this.http
+      .post(`${API_URL}/auth/activar-cuenta`, { rut: datos.rut, correo, contrasena: datos.clave })
+      .pipe(switchMap(() => this.login({ correo, clave: datos.clave })));
+  }
+
+  cambiarContrasena(actual: string, nueva: string): Observable<unknown> {
+    return this.http
+      .patch(`${API_URL}/auth/contrasena`, { contrasena_actual: actual, contrasena_nueva: nueva })
+      .pipe(
+        tap(() =>
+          this.usuarioActual.update((u) => (u ? { ...u, debeCambiarContrasena: false } : u)),
         ),
-    );
+      );
   }
 
   cerrarSesion(): void {
@@ -132,7 +144,7 @@ export class AuthService {
     const e = perfil.egresado;
 
     let rol: RolUsuario = 'egresado';
-    if (usuario.rol === 'ADMINISTRADOR') rol = 'secretaria';
+    if (usuario.rol === 'ADMINISTRADOR') rol = 'administrador';
     else if (usuario.rol === 'FUNCIONARIO') {
       rol = f?.cargo === 'JEFE_CARRERA' ? 'jefe_carrera' : 'secretaria';
     }
@@ -148,6 +160,7 @@ export class AuthService {
       token: res.access_token,
       idEgresado: usuario.id_egresado,
       idFuncionario: usuario.id_funcionario,
+      debeCambiarContrasena: usuario.debe_cambiar_contrasena ?? false,
       cargo: f ? CARGOS[f.cargo] ?? f.cargo : undefined,
     };
   }

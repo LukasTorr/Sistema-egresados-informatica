@@ -96,6 +96,7 @@ export class EgresadosService {
           correo: this.correoPrincipal(correos),
           contrasena_hash: await AuthService.hashContrasena(contrasena_inicial),
           rol: RolCuenta.EGRESADO,
+          debe_cambiar_contrasena: true,
         },
       });
       id_cuenta = cuenta.id_cuenta;

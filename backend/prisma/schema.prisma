@@ -76,29 +76,6 @@ enum OrigenOferta {
   EXTERNA
 }
 
-enum TipoActividad {
-  CHARLA
-  TALLER
-  SEMINARIO
-  FERIA_LABORAL
-  REUNION
-  OTRO
-}
-
-enum TipoEncuesta {
-  SEGUIMIENTO
-  SATISFACCION
-  EMPLEABILIDAD
-}
-
-enum TipoPregunta {
-  TEXTO
-  NUMERO
-  SI_NO
-  ESCALA
-  OPCION_MULTIPLE
-}
-
 enum CanalComunicacion {
   PORTAL
   CORREO
@@ -106,13 +83,15 @@ enum CanalComunicacion {
 }
 
 model cuenta {
-  id_cuenta          Int       @id @default(autoincrement())
-  correo             String    @unique @db.VarChar(150)
-  contrasena_hash    String    @db.VarChar(255)
-  rol                RolCuenta
-  fecha_verificacion DateTime?
-  activo             Boolean   @default(true)
-  fecha_creacion     DateTime  @default(now())
+  id_cuenta               Int       @id @default(autoincrement())
+  correo                  String    @unique @db.VarChar(150)
+  contrasena_hash         String    @db.VarChar(255)
+  rol                     RolCuenta
+  fecha_verificacion      DateTime?
+  // true cuando la Secretaría creó la cuenta con una contraseña inicial que el egresado debe cambiar.
+  debe_cambiar_contrasena Boolean   @default(false)
+  activo                  Boolean   @default(true)
+  fecha_creacion          DateTime  @default(now())
 
   funcionario       funcionario?
   egresado          egresado?
@@ -131,12 +110,9 @@ model funcionario {
   cargo            CargoFuncionario
   rol_funcionario  RolFuncionario
 
-  cuenta          cuenta           @relation(fields: [id_cuenta], references: [id_cuenta])
-  ofertas         oferta_laboral[]
-  actividades     actividad[]
-  reportes        reporte[]
-  informes_cierre informe_cierre[]
-  comunicaciones  comunicacion[]
+  cuenta         cuenta           @relation(fields: [id_cuenta], references: [id_cuenta])
+  ofertas        oferta_laboral[]
+  comunicaciones comunicacion[]
 
   @@map("funcionario")
 }
@@ -166,14 +142,12 @@ model egresado {
   fecha_creacion      DateTime     @default(now())
   fecha_actualizacion DateTime     @updatedAt
 
-  cuenta        cuenta?             @relation(fields: [id_cuenta], references: [id_cuenta])
-  especialidad  especialidad?       @relation(fields: [id_especialidad], references: [id_especialidad])
-  correos       egresado_correo[]
-  telefonos     egresado_telefono[]
-  situaciones   situacion_laboral[]
-  movimientos   movimiento_perfil[]
-  inscripciones inscripcion[]
-  respuestas    respuesta[]
+  cuenta       cuenta?             @relation(fields: [id_cuenta], references: [id_cuenta])
+  especialidad especialidad?       @relation(fields: [id_especialidad], references: [id_especialidad])
+  correos      egresado_correo[]
+  telefonos    egresado_telefono[]
+  situaciones  situacion_laboral[]
+  movimientos  movimiento_perfil[]
 
   @@index([apellido_paterno])
   @@index([anio_egreso])
@@ -254,117 +228,6 @@ model oferta_laboral {
   funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
 
   @@map("oferta_laboral")
-}
-
-model actividad {
-  id_actividad   Int           @id @default(autoincrement())
-  id_funcionario Int
-  titulo         String        @db.VarChar(150)
-  descripcion    String?       @db.Text
-  tipo           TipoActividad
-  lugar          String?       @db.VarChar(150)
-
-  funcionario    funcionario     @relation(fields: [id_funcionario], references: [id_funcionario])
-  sesiones       sesion[]
-  encuestas      encuesta[]
-  reportes       reporte[]
-  informe_cierre informe_cierre?
-
-  @@map("actividad")
-}
-
-model sesion {
-  id_sesion    Int      @id @default(autoincrement())
-  id_actividad Int
-  fecha        DateTime @db.Date
-  hora_inicio  DateTime @db.Time(0)
-  hora_fin     DateTime @db.Time(0)
-
-  actividad     actividad     @relation(fields: [id_actividad], references: [id_actividad], onDelete: Cascade)
-  inscripciones inscripcion[]
-
-  @@map("sesion")
-}
-
-model inscripcion {
-  id_inscripcion    Int      @id @default(autoincrement())
-  id_sesion         Int
-  id_egresado       Int
-  fecha_inscripcion DateTime @default(now())
-  asistio           Boolean  @default(false)
-
-  sesion   sesion   @relation(fields: [id_sesion], references: [id_sesion], onDelete: Cascade)
-  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
-
-  @@unique([id_sesion, id_egresado])
-  @@map("inscripcion")
-}
-
-model reporte {
-  id_reporte     Int  @id @default(autoincrement())
-  id_funcionario Int
-  id_actividad   Int?
-
-  funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
-  actividad   actividad?  @relation(fields: [id_actividad], references: [id_actividad])
-
-  @@map("reporte")
-}
-
-model informe_cierre {
-  id_informe            Int      @id @default(autoincrement())
-  id_actividad          Int      @unique
-  id_funcionario        Int
-  fecha_generacion      DateTime @default(now())
-  total_inscritos       Int      @default(0)
-  asistentes_completos  Int      @default(0)
-  asistentes_parciales  Int      @default(0)
-  porcentaje_asistencia Decimal  @db.Decimal(5, 2)
-  observaciones         String?  @db.Text
-
-  actividad   actividad   @relation(fields: [id_actividad], references: [id_actividad])
-  funcionario funcionario @relation(fields: [id_funcionario], references: [id_funcionario])
-
-  @@map("informe_cierre")
-}
-
-model encuesta {
-  id_encuesta  Int          @id @default(autoincrement())
-  id_actividad Int?
-  titulo       String       @db.VarChar(150)
-  tipo         TipoEncuesta
-  fecha_cierre DateTime?    @db.Date
-
-  actividad actividad? @relation(fields: [id_actividad], references: [id_actividad])
-  preguntas pregunta[]
-
-  @@map("encuesta")
-}
-
-model pregunta {
-  id_pregunta Int          @id @default(autoincrement())
-  id_encuesta Int
-  enunciado   String       @db.VarChar(500)
-  tipo        TipoPregunta
-
-  encuesta   encuesta    @relation(fields: [id_encuesta], references: [id_encuesta], onDelete: Cascade)
-  respuestas respuesta[]
-
-  @@map("pregunta")
-}
-
-model respuesta {
-  id_respuesta Int      @id @default(autoincrement())
-  id_pregunta  Int
-  id_egresado  Int
-  valor        String   @db.Text
-  fecha        DateTime @default(now())
-
-  pregunta pregunta @relation(fields: [id_pregunta], references: [id_pregunta], onDelete: Cascade)
-  egresado egresado @relation(fields: [id_egresado], references: [id_egresado], onDelete: Cascade)
-
-  @@unique([id_pregunta, id_egresado])
-  @@map("respuesta")
 }
 
 model comunicacion {

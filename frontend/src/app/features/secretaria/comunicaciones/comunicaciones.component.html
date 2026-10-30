@@ -1,0 +1,71 @@
+<header class="head">
+  <h1 class="head__title">Comunicaciones</h1>
+  <p class="head__subtitle">HU-04 · Publica avisos del departamento para los egresados</p>
+</header>
+
+@if (mensajeOk()) {
+  <div class="alert alert--ok" role="status">{{ mensajeOk() }}</div>
+}
+@if (error()) {
+  <div class="alert alert--error" role="alert">{{ error() }}</div>
+}
+
+<div class="layout">
+  <form class="main" [formGroup]="form" (ngSubmit)="publicar()" novalidate>
+    <section class="card">
+      <h2 class="card__title">Nueva comunicación</h2>
+
+      <div class="field" [class.field--error]="invalido('titulo')">
+        <label for="titulo">Título *</label>
+        <input id="titulo" type="text" formControlName="titulo" maxlength="150" placeholder="Ej: Encuentro de egresados 2026" />
+        @if (invalido('titulo')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+      </div>
+
+      <div class="field" [class.field--error]="invalido('contenido')">
+        <label for="contenido">Mensaje *</label>
+        <textarea id="contenido" rows="6" formControlName="contenido" placeholder="Escribe el aviso para los egresados…"></textarea>
+        @if (invalido('contenido')) { <span class="field__hint field__hint--error">Campo obligatorio</span> }
+      </div>
+
+      <div class="row row--2">
+        <div class="field">
+          <label for="id_especialidad">Especialidad</label>
+          <select id="id_especialidad" formControlName="id_especialidad">
+            <option value="">Todas</option>
+            @for (e of especialidades(); track e.id_especialidad) {
+              <option [value]="e.id_especialidad">{{ e.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="anio_egreso">Año de egreso</label>
+          <input id="anio_egreso" type="number" min="1950" formControlName="anio_egreso" placeholder="Todos" />
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button type="submit" class="btn btn--primary" [disabled]="enviando()">
+          {{ enviando() ? 'Publicando…' : 'Publicar comunicación' }}
+        </button>
+      </div>
+    </section>
+  </form>
+
+  <aside class="side">
+    <section class="card">
+      <h2 class="card__title">Publicadas recientemente</h2>
+      <ul class="lista">
+        @for (c of publicadas(); track c.id_comunicacion) {
+          <li class="lista__item">
+            <p class="lista__titulo">{{ c.titulo }}</p>
+            <p class="lista__meta">
+              {{ fecha(c.fecha_publicacion) }} · {{ destinatarios(c) }} · {{ c.total_destinatarios }} destinatario(s)
+            </p>
+          </li>
+        } @empty {
+          <li class="lista__vacia">Todavía no hay comunicaciones publicadas.</li>
+        }
+      </ul>
+    </section>
+  </aside>
+</div>

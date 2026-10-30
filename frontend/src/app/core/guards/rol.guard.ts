@@ -26,3 +26,4 @@ export const rolGuard = (rolesPermitidos: RolUsuario[]): CanActivateFn => {
     return router.createUrlTree([auth.rutaInicio(usuario.rol)]);
   };
 };
+

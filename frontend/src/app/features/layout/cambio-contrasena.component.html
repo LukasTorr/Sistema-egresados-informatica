@@ -1,0 +1,39 @@
+<div class="overlay">
+  <form class="card" [formGroup]="form" (ngSubmit)="guardar()" novalidate role="dialog" aria-modal="true" aria-labelledby="titulo-cambio">
+    <h2 id="titulo-cambio" class="card__title">Crea tu propia contraseña</h2>
+    <p class="card__text">
+      Tu cuenta fue creada con una contraseña inicial. Antes de continuar, cámbiala por una que puedas recordar.
+    </p>
+
+    @if (error()) {
+      <div class="alert" role="alert">{{ error() }}</div>
+    }
+
+    <div class="field" [class.field--error]="invalido('actual')">
+      <label for="actual">Contraseña inicial</label>
+      <input id="actual" type="password" formControlName="actual" autocomplete="current-password" />
+      @if (invalido('actual')) { <span class="field__hint">Ingresa la contraseña que te entregaron</span> }
+    </div>
+
+    <div class="field" [class.field--error]="invalido('nueva')">
+      <label for="nueva">Nueva contraseña</label>
+      <input id="nueva" type="password" formControlName="nueva" autocomplete="new-password" />
+      @if (invalido('nueva')) { <span class="field__hint">Mínimo 8 caracteres</span> }
+    </div>
+
+    <div class="field" [class.field--error]="form.hasError('noCoinciden') && form.controls.confirmacion.touched">
+      <label for="confirmacion">Repite la nueva contraseña</label>
+      <input id="confirmacion" type="password" formControlName="confirmacion" autocomplete="new-password" />
+      @if (form.hasError('noCoinciden') && form.controls.confirmacion.touched) {
+        <span class="field__hint">Las contraseñas no coinciden</span>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn--ghost" (click)="salir.emit()">Cerrar sesión</button>
+      <button type="submit" class="btn btn--primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar contraseña' }}
+      </button>
+    </div>
+  </form>
+</div>

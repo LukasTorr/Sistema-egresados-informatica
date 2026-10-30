@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
+import { mensajeError } from '../../../core/api';
 import { AuthService } from '../../../core/services/auth.service';
 import {
   rutValidator,
@@ -34,12 +35,9 @@ export class RegisterComponent {
 
   readonly form = this.fb.group(
     {
-      nombres: ['', Validators.required],
-      apellidos: ['', Validators.required],
       rut: ['', [Validators.required, rutValidator()]],
       correo: ['', [Validators.required, Validators.email]],
-      telefono: [''],
-      clave: ['', [Validators.required, Validators.minLength(6)]],
+      clave: ['', [Validators.required, Validators.minLength(8)]],
       claveConfirmacion: ['', Validators.required],
     },
     { validators: clavesCoincidenValidator },
@@ -69,26 +67,16 @@ export class RegisterComponent {
     const datos = this.form.getRawValue();
 
     this.auth
-      .registrar({
-        nombres: datos.nombres!,
-        apellidos: datos.apellidos!,
-        rut: datos.rut!,
-        correo: datos.correo!,
-        telefono: datos.telefono ?? undefined,
-        clave: datos.clave!,
-        claveConfirmacion: datos.claveConfirmacion!,
-      })
+      .activarCuenta({ rut: datos.rut!, correo: datos.correo!, clave: datos.clave! })
       .subscribe({
         next: (usuario) => {
           this.enviando.set(false);
           this.auth.usuarioActual.set(usuario);
-          this.router.navigateByUrl('/dashboard');
+          this.router.navigateByUrl(this.auth.rutaInicio(usuario.rol));
         },
-        error: (err: Error) => {
+        error: (err) => {
           this.enviando.set(false);
-          this.errorServidor.set(
-            err.message || 'No fue posible crear la cuenta.',
-          );
+          this.errorServidor.set(mensajeError(err, err?.message || 'No fue posible activar la cuenta.'));
         },
       });
   }

@@ -1,4 +1,5 @@
 export type RolUsuario =
+  | 'administrador'
   | 'secretaria'
   | 'jefe_carrera'
   | 'docente'
@@ -12,14 +13,10 @@ export interface CredencialesLogin {
   clave: string;
 }
 
-export interface RegistroUsuario {
-  nombres: string;
-  apellidos: string;
+export interface ActivacionCuenta {
   rut: string;
   correo: string;
-  telefono?: string;
   clave: string;
-  claveConfirmacion: string;
 }
 
 export interface UsuarioAutenticado {
@@ -33,6 +30,7 @@ export interface UsuarioAutenticado {
   token?: string;
   idEgresado?: number;
   idFuncionario?: number;
+  debeCambiarContrasena?: boolean;
   telefono?: string;
   empresa?: string;
   cargo?: string;

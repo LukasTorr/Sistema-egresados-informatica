@@ -27,7 +27,7 @@ import { ResultadoCargaDto } from './dto/resultado-carga.dto';
 
 @ApiTags('HU-03 · Carga masiva de egresados')
 @ApiBearerAuth()
-@Roles(RolCuenta.ADMINISTRADOR)
+@Roles(RolCuenta.ADMINISTRADOR, RolCuenta.FUNCIONARIO)
 @Controller('egresados/carga-masiva')
 export class CargaMasivaController {
   constructor(private readonly cargaMasivaService: CargaMasivaService) {}
