@@ -1,6 +1,6 @@
 <header class="head">
-  <h1 class="head__title">Usuarios</h1>
-  <p class="head__subtitle">Cuentas del personal: secretaría, jefatura y administradores</p>
+  <h1 class="head__title">Funcionarios</h1>
+  <p class="head__subtitle">Crea y administra las cuentas de secretaría, jefatura y otros administradores</p>
 </header>
 
 @if (mensajeOk()) {
@@ -12,7 +12,7 @@
 
 <form [formGroup]="form" (ngSubmit)="crear()" novalidate>
   <section class="card">
-    <h2 class="card__title">Nueva cuenta</h2>
+    <h2 class="card__title">Nuevo funcionario</h2>
 
     <div class="row row--3">
       <div class="field" [class.field--error]="invalido('nombres')">

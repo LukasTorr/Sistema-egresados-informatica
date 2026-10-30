@@ -59,7 +59,7 @@ export class AuthService {
 
   readonly esAdmin = computed(() => {
     const rol = this.usuarioActual()?.rol;
-    return rol === 'secretaria' || rol === 'jefe_carrera';
+    return rol === 'administrador' || rol === 'secretaria' || rol === 'jefe_carrera';
   });
 
   constructor() {
@@ -84,6 +84,8 @@ export class AuthService {
 
   rutaInicio(rol: RolUsuario): string {
     switch (rol) {
+      case 'administrador':
+        return '/admin';
       case 'secretaria':
         return '/secretaria';
       case 'jefe_carrera':
@@ -142,7 +144,7 @@ export class AuthService {
     const e = perfil.egresado;
 
     let rol: RolUsuario = 'egresado';
-    if (usuario.rol === 'ADMINISTRADOR') rol = 'secretaria';
+    if (usuario.rol === 'ADMINISTRADOR') rol = 'administrador';
     else if (usuario.rol === 'FUNCIONARIO') {
       rol = f?.cargo === 'JEFE_CARRERA' ? 'jefe_carrera' : 'secretaria';
     }

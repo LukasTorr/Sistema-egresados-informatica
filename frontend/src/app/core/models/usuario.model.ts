@@ -1,4 +1,5 @@
 export type RolUsuario =
+  | 'administrador'
   | 'secretaria'
   | 'jefe_carrera'
   | 'docente'

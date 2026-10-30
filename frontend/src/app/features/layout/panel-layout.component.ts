@@ -21,21 +21,29 @@ interface ConfigRol {
   items: ItemMenu[];
 }
 
+const ITEMS_GESTION = (base: string): ItemMenu[] => [
+  { etiqueta: 'Inicio', ruta: base, exacto: true },
+  { etiqueta: 'Directorio', ruta: `${base}/directorio`, exacto: false },
+  { etiqueta: 'Registrar egresado', ruta: `${base}/registrar`, exacto: false },
+  { etiqueta: 'Carga masiva', ruta: `${base}/carga-masiva`, exacto: false },
+  { etiqueta: 'Comunicaciones', ruta: `${base}/comunicaciones`, exacto: false },
+  { etiqueta: 'Ofertas laborales', ruta: `${base}/ofertas`, exacto: false },
+  { etiqueta: 'Actividades', ruta: `${base}/actividades`, exacto: false },
+  { etiqueta: 'Encuestas e informes', ruta: `${base}/encuestas`, exacto: false },
+];
+
 const CONFIG: Record<string, ConfigRol> = {
+  administrador: {
+    titulo: 'Administración',
+    cargoPorDefecto: 'Administrador',
+    admin: true,
+    items: [...ITEMS_GESTION('/admin'), { etiqueta: 'Funcionarios', ruta: '/admin/funcionarios', exacto: false }],
+  },
   secretaria: {
     titulo: 'Secretaría',
     cargoPorDefecto: 'Secretaría DICI',
     admin: true,
-    items: [
-      { etiqueta: 'Inicio', ruta: '/secretaria', exacto: true },
-      { etiqueta: 'Directorio', ruta: '/secretaria/directorio', exacto: false },
-      { etiqueta: 'Registrar egresado', ruta: '/secretaria/registrar', exacto: false },
-      { etiqueta: 'Carga masiva', ruta: '/secretaria/carga-masiva', exacto: false },
-      { etiqueta: 'Comunicaciones', ruta: '/secretaria/comunicaciones', exacto: false },
-      { etiqueta: 'Ofertas laborales', ruta: '/secretaria/ofertas', exacto: false },
-      { etiqueta: 'Actividades', ruta: '/secretaria/actividades', exacto: false },
-      { etiqueta: 'Encuestas e informes', ruta: '/secretaria/encuestas', exacto: false },
-    ],
+    items: ITEMS_GESTION('/secretaria'),
   },
   jefe_carrera: {
     titulo: 'Jefatura',
@@ -81,12 +89,7 @@ export class PanelLayoutComponent {
     return CONFIG[rol] ?? CONFIG['egresado'];
   });
 
-  readonly items = computed<ItemMenu[]>(() => {
-    const items = this.config().items;
-    return this.usuario()?.rolCuenta === 'ADMINISTRADOR' && this.usuario()?.rol === 'secretaria'
-      ? [...items, { etiqueta: 'Usuarios', ruta: '/secretaria/usuarios', exacto: false }]
-      : items;
-  });
+  readonly items = computed(() => this.config().items);
 
   readonly seccionActual = signal('Inicio');
   readonly confirmandoCierreSesion = signal(false);
