@@ -4,8 +4,8 @@ import { Observable, map, switchMap, throwError } from 'rxjs';
 
 import { API_URL } from '../api';
 import {
+  ActivacionCuenta,
   CredencialesLogin,
-  RegistroUsuario,
   RolCuenta,
   RolUsuario,
   UsuarioAutenticado,
@@ -113,13 +113,12 @@ export class AuthService {
       );
   }
 
-  registrar(_datos: RegistroUsuario): Observable<UsuarioAutenticado> {
-    return throwError(
-      () =>
-        new Error(
-          'Por ahora la cuenta de egresado la crea la Secretaría al registrarte. Pídele tus datos de acceso.',
-        ),
-    );
+  // Activa la cuenta de un egresado ya registrado por la Secretaría y luego inicia sesión con ella.
+  activarCuenta(datos: ActivacionCuenta): Observable<UsuarioAutenticado> {
+    const correo = datos.correo.trim().toLowerCase();
+    return this.http
+      .post(`${API_URL}/auth/activar-cuenta`, { rut: datos.rut, correo, contrasena: datos.clave })
+      .pipe(switchMap(() => this.login({ correo, clave: datos.clave })));
   }
 
   cerrarSesion(): void {

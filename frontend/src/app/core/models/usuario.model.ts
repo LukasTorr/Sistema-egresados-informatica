@@ -12,14 +12,10 @@ export interface CredencialesLogin {
   clave: string;
 }
 
-export interface RegistroUsuario {
-  nombres: string;
-  apellidos: string;
+export interface ActivacionCuenta {
   rut: string;
   correo: string;
-  telefono?: string;
   clave: string;
-  claveConfirmacion: string;
 }
 
 export interface UsuarioAutenticado {

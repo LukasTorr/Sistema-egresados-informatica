@@ -29,7 +29,7 @@ export const routes: Routes = [
       import('./features/auth/register/register.component').then(
         (m) => m.RegisterComponent,
       ),
-    title: 'Crear cuenta | Sistema de Egresados ICCI',
+    title: 'Activar cuenta | Sistema de Egresados ICCI',
   },
 
   // ---- Secretaría (admin) ----
