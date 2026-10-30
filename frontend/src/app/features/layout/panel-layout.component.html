@@ -7,7 +7,7 @@
       </div>
     </div>
 
-    <p class="sidebar__section">{{ config().etiquetaMenu }}</p>
+    <p class="sidebar__section">{{ rolVisible() }}</p>
 
     <nav class="sidebar__nav">
       @for (item of config().items; track item.ruta) {

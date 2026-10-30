@@ -54,6 +54,14 @@ export const routes: Routes = [
           ),
         title: 'Registrar egresado | Secretaría ICCI',
       },
+      {
+        path: 'comunicaciones',
+        loadComponent: () =>
+          import('./features/secretaria/comunicaciones/comunicaciones.component').then(
+            (m) => m.ComunicacionesComponent,
+          ),
+        title: 'Comunicaciones | Secretaría ICCI',
+      },
       ajustes('Secretaría'),
       { path: '**', redirectTo: '' },
     ],

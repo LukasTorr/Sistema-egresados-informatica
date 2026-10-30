@@ -34,6 +34,7 @@
 }
 
 .sidebar__section {
+  text-transform: uppercase;
   font-size: 0.66rem;
   letter-spacing: 0.08em;
   color: #8e9bb5;
