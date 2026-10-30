@@ -9,27 +9,13 @@
 
   <section class="auth-panel">
     <div class="auth-panel__card auth-panel__card--wide">
-      <h2 class="auth-panel__title">Crear cuenta de egresado</h2>
-      <p class="auth-panel__subtitle">Completa tus datos para activar tu acceso al sistema.</p>
+      <h2 class="auth-panel__title">Activar cuenta de egresado</h2>
+      <p class="auth-panel__subtitle">Usa el RUT y el correo con que la Secretaría te registró y elige tu contraseña.</p>
 
       <form [formGroup]="form" (ngSubmit)="crearCuenta()" novalidate>
         @if (errorServidor()) {
           <div class="alert alert--error">{{ errorServidor() }}</div>
         }
-
-        <div class="field-row">
-          <div class="field" [class.field--error]="invalido('nombres')">
-            <label for="nombres">Nombres*</label>
-            <input id="nombres" type="text" formControlName="nombres" autocomplete="given-name" />
-            @if (invalido('nombres')) { <span class="field__hint">Ingrese sus nombres</span> }
-          </div>
-
-          <div class="field" [class.field--error]="invalido('apellidos')">
-            <label for="apellidos">Apellidos*</label>
-            <input id="apellidos" type="text" formControlName="apellidos" autocomplete="family-name" />
-            @if (invalido('apellidos')) { <span class="field__hint">Ingrese sus apellidos</span> }
-          </div>
-        </div>
 
         <div class="field" [class.field--error]="invalido('rut')">
           <label for="rut">Rut*</label>
@@ -43,16 +29,11 @@
           @if (invalido('correo')) { <span class="field__hint">Ingrese un correo válido</span> }
         </div>
 
-        <div class="field">
-          <label for="telefono">Teléfono de contacto</label>
-          <input id="telefono" type="tel" formControlName="telefono" placeholder="+56 9 1234 5678" />
-        </div>
-
         <div class="field-row">
           <div class="field" [class.field--error]="invalido('clave')">
             <label for="clave">Contraseña*</label>
             <input id="clave" type="password" formControlName="clave" autocomplete="new-password" />
-            @if (invalido('clave')) { <span class="field__hint">Mínimo 6 caracteres</span> }
+            @if (invalido('clave')) { <span class="field__hint">Mínimo 8 caracteres</span> }
           </div>
 
           <div class="field" [class.field--error]="invalido('claveConfirmacion')">
@@ -66,7 +47,7 @@
         }
 
         <button type="submit" class="btn btn--primary" [disabled]="enviando()">
-          {{ enviando() ? 'Creando cuenta…' : 'Crear cuenta' }}
+          {{ enviando() ? 'Activando cuenta…' : 'Activar cuenta' }}
         </button>
       </form>
 
